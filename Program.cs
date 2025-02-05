@@ -14,11 +14,14 @@ try
     var downloader = new Downloader(logger, appSettings.DownloaderSettings);
 
     var searchSettings = appSettings.SearchSettings;
-    await searchSettings.ChannelIDs.AsParallel()
+    await searchSettings.ChannelIDs
+        .Select(channelId => channelId.Trim())
+        .Distinct()
+        .AsParallel()
         .SelectMany(YouTubeDataRetriever.EnumerateLatestVideos)
         .Where(video => video.Title.ContainsAny(searchSettings.Keywords, StringComparison.OrdinalIgnoreCase))
         .Select(
-            async video =>
+            video => Task.Run(() =>
             {
                 try
                 {
@@ -37,7 +40,7 @@ try
                             + $"  Video ID:     {video.Id}\n"
                             + $"  Video Title:  {video.Title}\n");
 
-                        if (!await downloader.TwoStepDownloadAsync(video.Id))
+                        if (!downloader.TwoStepDownloadAsync(video.Id).GetAwaiter().GetResult())
                         {
                             hasError = true;
                         }
@@ -52,7 +55,7 @@ try
                     logger.WriteLine($"[{video.Id}] {e}");
                     hasError = true;
                 }
-            })
+            }))
         .WhenAll();
 }
 catch (Exception e)

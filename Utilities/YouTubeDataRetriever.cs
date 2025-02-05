@@ -12,6 +12,11 @@ public class YouTubeDataRetriever
 
     public static IEnumerable<((string Id, string Name) Channel, string Id, string Title)> EnumerateLatestVideos(string channelId)
     {
+        if (string.IsNullOrWhiteSpace(channelId))
+        {
+            yield break;
+        }
+
         var url = GetFeedUrl(channelId);
         var feed = XElement.Load(url);
 
