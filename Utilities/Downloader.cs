@@ -12,7 +12,7 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
 
     private static readonly TimeSpan LiveDetectionThreshold = TimeSpan.FromMinutes(30);
     
-    private static readonly int TotalAttempts = 10;
+    private static readonly int TotalAttempts = 3;
 
     public async Task<bool> TwoStepDownloadAsync(string videoId)
     {
