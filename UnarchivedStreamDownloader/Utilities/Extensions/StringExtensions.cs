@@ -10,4 +10,14 @@ public static class StringExtensions
     {
         return keywords.Any(keyword => source.Contains(keyword, comparisonType));
     }
+
+    public static string DoubleQuoted(this string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return value;
+        }
+
+        return $"\"{value}\"";
+    }
 }

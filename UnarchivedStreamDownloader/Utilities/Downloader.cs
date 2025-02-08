@@ -4,6 +4,7 @@ namespace UnarchivedStreamDownloader.Utilities;
 using System.Diagnostics;
 
 using UnarchivedStreamDownloader.Configuration.Models;
+using UnarchivedStreamDownloader.Utilities.Extensions;
 using UnarchivedStreamDownloader.Utilities.Logging;
 
 public class Downloader(ILogger? logger, DownloaderSettings settings)
@@ -61,16 +62,17 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
         var arguments = string.Join(' ', settings.Options) + $" -- {videoId}";
         logger?.WriteLine($"[{videoId}] Exec: {settings.FilePath} {arguments}");
 
+        var filePath = "UnarchivedStreamDownloader.Wrapper.exe";
         var process = Process.Start(
             new ProcessStartInfo
                 {
-                    FileName = settings.FilePath,
-                    Arguments = arguments,
+                    FileName = filePath,
+                    Arguments = $"{settings.FilePath.DoubleQuoted()} {arguments}",
                     UseShellExecute = true,
                 });
         if (process == null)
         {
-            throw new InvalidOperationException("The downloader could not be started.");
+            throw new InvalidOperationException($"'{filePath}' could not be started.");
         }
 
         await process.WaitForExitAsync();
