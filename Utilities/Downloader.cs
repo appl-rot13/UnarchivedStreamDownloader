@@ -2,40 +2,49 @@
 namespace UnarchivedStreamDownloader.Utilities;
 
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 using UnarchivedStreamDownloader.Configuration.Models;
 using UnarchivedStreamDownloader.Utilities.Logging;
 
 public class Downloader(ILogger? logger, DownloaderSettings settings)
 {
-    private static readonly TimeSpan RetryInterval = TimeSpan.FromSeconds(1);
+    private static readonly int DownloadAttempts = 10;
 
-    private static readonly TimeSpan LiveDetectionThreshold = TimeSpan.FromMinutes(30);
-    
-    private static readonly int TotalAttempts = 3;
+    private static readonly int ErrorRetryAttempts = 3;
 
-    public async Task<bool> TwoStepDownloadAsync(string videoId)
+    private static readonly TimeSpan ErrorRetryInterval = TimeSpan.FromSeconds(1);
+
+    public Task<bool> DownloadArchiveAsync(string videoId) =>
+        this.DownloadArchiveAsync(videoId, DownloadAttempts);
+
+    public async Task<bool> DownloadArchiveAsync(string videoId, int count)
     {
-        var startTime = DateTime.Now;
+        logger?.WriteLine($"[{videoId}] Start the download.");
 
-        logger?.WriteLine($"[{videoId}] Start the first download.");
-        var ret = await this.DownloadAsync(videoId);
-        if (!ret)
+        for (var i = 1; i <= count; i++)
         {
-            // この時点で異常終了の場合、終了すべき？
+            if (!await this.DownloadWithRetryAsync(videoId))
+            {
+                return false;
+            }
+
+            if (ArchiveFileExists(videoId))
+            {
+                return true;
+            }
+
+            if (i < count)
+            {
+                logger?.WriteLine($"[{videoId}] Retry until the archive is downloaded. Attempt {i + 1}/{count}.");
+            }
         }
 
-        var elapsed = DateTime.Now - startTime;
-        if (elapsed > LiveDetectionThreshold)
-        {
-            // 初回ダウンロードに時間が掛かった場合、
-            // ライブ配信だったと判断し、アーカイブのダウンロードを試行
-            logger?.WriteLine($"[{videoId}] Start the second download.");
-            ret &= await this.DownloadWithRetryAsync(videoId, TotalAttempts);
-        }
-
-        return ret;
+        return false;
     }
+
+    public Task<bool> DownloadWithRetryAsync(string videoId) =>
+        this.DownloadWithRetryAsync(videoId, ErrorRetryAttempts);
 
     public async Task<bool> DownloadWithRetryAsync(string videoId, int count)
     {
@@ -48,8 +57,8 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
 
             if (i < count)
             {
-                await Task.Delay(RetryInterval);
-                logger?.WriteLine($"[{videoId}] Retry the download. Attempt {i + 1}/{count}.");
+                await Task.Delay(ErrorRetryInterval);
+                logger?.WriteLine($"[{videoId}] Retry the download due to an error. Attempt {i + 1}/{count}.");
             }
         }
 
@@ -77,5 +86,11 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
 
         logger?.WriteLine($"[{videoId}] Exit: {process.ExitCode}");
         return process.ExitCode == 0;
+    }
+
+    private static bool ArchiveFileExists(string videoId)
+    {
+        return Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*[{videoId}].*", SearchOption.TopDirectoryOnly)
+            .Any(filePath => !Regex.IsMatch(filePath, $@"\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}_\d{{2}} \[{videoId}\]\."));
     }
 }
