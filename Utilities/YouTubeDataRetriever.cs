@@ -10,7 +10,7 @@ public class YouTubeDataRetriever
         return $"https://www.youtube.com/feeds/videos.xml?channel_id={channelId}";
     }
 
-    public static IEnumerable<((string Id, string Name) Channel, string Id, string Title)> EnumerateLatestVideos(string channelId)
+    public static IEnumerable<((string Id, string Name) Channel, string Id, string Title, string Description)> EnumerateLatestVideos(string channelId)
     {
         if (string.IsNullOrWhiteSpace(channelId))
         {
@@ -22,6 +22,7 @@ public class YouTubeDataRetriever
 
         var xmlNamespace = feed.GetDefaultNamespace();
         var youtubeNamespace = feed.GetNamespaceOfPrefix("yt") ?? XNamespace.None;
+        var mediaNamespace = feed.GetNamespaceOfPrefix("media") ?? XNamespace.None;
 
         var channelName = feed.Element(xmlNamespace.GetName("title"))?.Value;
         if (string.IsNullOrWhiteSpace(channelName))
@@ -44,7 +45,13 @@ public class YouTubeDataRetriever
                 continue;
             }
 
-            yield return (channel, videoId, videoTitle);
+            var videoDescription = entry.Element(mediaNamespace.GetName("group"))?.Element(mediaNamespace.GetName("description"))?.Value;
+            if (string.IsNullOrWhiteSpace(videoDescription))
+            {
+                continue;
+            }
+
+            yield return (channel, videoId, videoTitle, videoDescription);
         }
     }
 }

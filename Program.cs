@@ -19,7 +19,7 @@ try
         .Distinct()
         .AsParallel()
         .SelectMany(YouTubeDataRetriever.EnumerateLatestVideos)
-        .Where(video => video.Title.ContainsAny(searchSettings.Keywords, StringComparison.OrdinalIgnoreCase))
+        .Where(video => searchSettings.IsMatch(video.Title, video.Description))
         .Select(
             video => Task.Run(() =>
             {
