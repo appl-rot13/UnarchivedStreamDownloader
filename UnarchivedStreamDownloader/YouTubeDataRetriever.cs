@@ -1,5 +1,5 @@
 ﻿
-namespace UnarchivedStreamDownloader.Utilities;
+namespace UnarchivedStreamDownloader;
 
 using System.Xml.Linq;
 

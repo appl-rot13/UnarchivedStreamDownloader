@@ -1,7 +1,7 @@
 ﻿
-namespace UnarchivedStreamDownloader.Configuration.Models;
+namespace UnarchivedStreamDownloader.Core.Configuration.Models;
 
-using UnarchivedStreamDownloader.Utilities.Extensions;
+using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
 public class SearchSettings
 {
