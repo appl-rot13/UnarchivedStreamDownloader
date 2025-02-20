@@ -40,7 +40,7 @@ try
                             + $"  Video ID:     {video.Id}\n"
                             + $"  Video Title:  {video.Title}\n");
 
-                        if (!downloader.TwoStepDownloadAsync(video.Id).GetAwaiter().GetResult())
+                        if (!downloader.DownloadArchiveAsync(video.Id).GetAwaiter().GetResult())
                         {
                             hasError = true;
                         }
