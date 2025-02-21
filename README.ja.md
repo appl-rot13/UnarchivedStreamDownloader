@@ -31,7 +31,6 @@ yt-dlp を使用してその配信をダウンロードします。
 "DownloaderSettings": {
   "FilePath": "yt-dlp.exe",
   "Options": [
-    "--wait-for-video 60",
     "--cookies cookies.txt"
   ]
 }

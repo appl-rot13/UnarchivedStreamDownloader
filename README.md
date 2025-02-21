@@ -31,7 +31,6 @@ Setting up the `appsettings.json` file to match your environment.
 "DownloaderSettings": {
   "FilePath": "yt-dlp.exe",
   "Options": [
-    "--wait-for-video 60",
     "--cookies cookies.txt"
   ]
 }
