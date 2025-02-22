@@ -36,6 +36,26 @@ yt-dlp を使用してその配信をダウンロードします。
 }
 ```
 
+#### 動作の設定
+
+- `DownloadAttempts` - ダウンロードの試行回数を指定します。
+- `ErrorRetryAttempts` - ダウンロードエラー発生時のリトライ回数を指定します。
+- `ErrorRetryIntervalSeconds` - ダウンロードエラー発生時のリトライ間隔(秒)を指定します。
+- `StartCheckBufferSeconds` - 配信開始予定時刻の前に、配信開始チェックを開始する時間(秒)を指定します。
+- `StartCheckIntervalSeconds` - 配信開始をチェックする間隔(秒)を指定します。
+
+```json
+"BehaviorSettings": {
+  "DownloadAttempts": 10,
+  "ErrorRetryAttempts": 3,
+  "ErrorRetryIntervalSeconds": 1,
+  "StartCheckBufferSeconds": 300,
+  "StartCheckIntervalSeconds": 60
+}
+```
+
+![TimingChart](img/TimingChart_jpn.png)
+
 #### 検索の設定
 
 - `ChannelIDs` - ダウンロード対象とするチャンネルのIDを指定します。

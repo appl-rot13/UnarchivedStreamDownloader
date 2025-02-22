@@ -9,20 +9,10 @@ using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Core.Utilities.Logging;
 
-public class Downloader(ILogger? logger, DownloaderSettings settings)
+public class Downloader(ILogger? logger, DownloaderSettings downloader, BehaviorSettings behavior)
 {
-    private static readonly int DownloadAttempts = 10;
-
-    private static readonly int ErrorRetryAttempts = 3;
-
-    private static readonly TimeSpan ErrorRetryInterval = TimeSpan.FromSeconds(1);
-
-    private static readonly TimeSpan StartCheckBuffer = TimeSpan.FromMinutes(5);
-
-    private static readonly TimeSpan StartCheckInterval = TimeSpan.FromMinutes(1);
-
     public Task<bool> DownloadArchiveAsync(string videoId) =>
-        this.DownloadArchiveAsync(videoId, DownloadAttempts);
+        this.DownloadArchiveAsync(videoId, behavior.DownloadAttempts);
 
     public async Task<bool> DownloadArchiveAsync(string videoId, int count)
     {
@@ -54,7 +44,7 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
     }
 
     public Task<bool> DownloadWithRetryAsync(string videoId) =>
-        this.DownloadWithRetryAsync(videoId, ErrorRetryAttempts);
+        this.DownloadWithRetryAsync(videoId, behavior.ErrorRetryAttempts);
 
     public async Task<bool> DownloadWithRetryAsync(string videoId, int count)
     {
@@ -67,7 +57,7 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
 
             if (i < count)
             {
-                await Task.Delay(ErrorRetryInterval);
+                await Task.Delay(behavior.ErrorRetryInterval);
                 logger?.WriteLine($"Retry the download due to an error. Attempt {i + 1}/{count}.");
             }
         }
@@ -82,7 +72,7 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
 
         try
         {
-            var process = this.StartDownloader(videoId, settings.Options);
+            var process = this.StartDownloader(videoId, downloader.Options);
 
             await process.WaitForExitAsync();
             return process.ExitCode == 0;
@@ -129,12 +119,12 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
                 logger?.WriteLine($"The video is scheduled to start at {scheduledStartTime}.");
             }
 
-            var attemptTime = scheduledStartTime.Subtract(StartCheckBuffer);
+            var attemptTime = scheduledStartTime.Subtract(behavior.StartCheckBuffer);
             var timeRemaining = (attemptTime - DateTime.Now).TruncateToSeconds();
             if (timeRemaining <= TimeSpan.Zero)
             {
                 // 配信開始直前の場合
-                timeRemaining = StartCheckInterval;
+                timeRemaining = behavior.StartCheckInterval;
                 attemptTime = DateTime.Now.Add(timeRemaining);
             }
 
@@ -174,7 +164,7 @@ public class Downloader(ILogger? logger, DownloaderSettings settings)
         Action<ProcessStartInfo> startInfoSetting,
         params IEnumerable<string> options)
     {
-        var filePath = settings.FilePath;
+        var filePath = downloader.FilePath;
         var arguments = CreateArguments(videoId, options);
         logger?.WriteLine($"Exec: {filePath} {arguments}");
 

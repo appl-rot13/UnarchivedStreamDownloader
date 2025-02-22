@@ -15,7 +15,7 @@ var videoId = args[0];
 try
 {
     var appSettings = Configuration.Load<AppSettings>("appsettings.json");
-    var downloader = new Downloader(logger, appSettings.DownloaderSettings);
+    var downloader = new Downloader(logger, appSettings.DownloaderSettings, appSettings.BehaviorSettings);
 
     if (await downloader.DownloadArchiveAsync(videoId))
     {
