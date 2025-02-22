@@ -1,9 +1,11 @@
 ﻿
-using UnarchivedStreamDownloader.Configuration;
-using UnarchivedStreamDownloader.Configuration.Models;
-using UnarchivedStreamDownloader.Utilities;
-using UnarchivedStreamDownloader.Utilities.Extensions;
-using UnarchivedStreamDownloader.Utilities.Logging;
+using System.Diagnostics;
+
+using UnarchivedStreamDownloader;
+using UnarchivedStreamDownloader.Core.Configuration;
+using UnarchivedStreamDownloader.Core.Configuration.Models;
+using UnarchivedStreamDownloader.Core.Utilities.Extensions;
+using UnarchivedStreamDownloader.Core.Utilities.Logging;
 
 var logger = Logger.GetInstance();
 var hasError = false;
@@ -11,9 +13,8 @@ var hasError = false;
 try
 {
     var appSettings = Configuration.Load<AppSettings>("appsettings.json");
-    var downloader = new Downloader(logger, appSettings.DownloaderSettings);
-
     var searchSettings = appSettings.SearchSettings;
+
     await searchSettings.ChannelIDs
         .Select(channelId => channelId.Trim())
         .Distinct()
@@ -40,7 +41,7 @@ try
                             + $"  Video ID:     {video.Id}\n"
                             + $"  Video Title:  {video.Title}\n");
 
-                        if (!downloader.DownloadArchiveAsync(video.Id).GetAwaiter().GetResult())
+                        if (!WaitForDownload(video.Id))
                         {
                             hasError = true;
                         }
@@ -67,4 +68,25 @@ catch (Exception e)
 if (hasError)
 {
     Console.ReadLine();
+}
+
+return;
+
+bool WaitForDownload(string videoId)
+{
+    var filePath = "UnarchivedStreamDownloader.Worker.exe";
+    var process = Process.Start(
+        new ProcessStartInfo
+            {
+                FileName = filePath,
+                Arguments = videoId,
+                UseShellExecute = true,
+            });
+    if (process == null)
+    {
+        throw new InvalidOperationException($"'{filePath}' could not be started.");
+    }
+
+    process.WaitForExit();
+    return process.ExitCode == 0;
 }

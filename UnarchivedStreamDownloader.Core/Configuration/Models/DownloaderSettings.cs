@@ -1,5 +1,5 @@
 ﻿
-namespace UnarchivedStreamDownloader.Configuration.Models;
+namespace UnarchivedStreamDownloader.Core.Configuration.Models;
 
 public class DownloaderSettings
 {
