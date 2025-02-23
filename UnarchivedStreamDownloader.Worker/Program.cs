@@ -22,6 +22,10 @@ try
         return 0;
     }
 }
+catch (OperationCanceledException)
+{
+    return 0;
+}
 catch (Exception e)
 {
     logger.WriteLine($"{e}");

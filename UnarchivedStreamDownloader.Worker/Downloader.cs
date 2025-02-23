@@ -67,14 +67,23 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
 
     public async Task<bool> DownloadAsync(string videoId)
     {
-        ConsoleCancelEventHandler handler = (_, e) => e.Cancel = true;
+        var canceled = false;
+        ConsoleCancelEventHandler handler = (_, e) =>
+        {
+            canceled = true;
+            e.Cancel = true;
+        };
         Console.CancelKeyPress += handler;
 
         try
         {
             var process = this.StartDownloader(videoId, downloader.Options);
-
             await process.WaitForExitAsync();
+            if (canceled)
+            {
+                throw new OperationCanceledException();
+            }
+
             return process.ExitCode == 0;
         }
         finally
