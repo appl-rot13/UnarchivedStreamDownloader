@@ -8,69 +8,69 @@ using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Core.Utilities.Logging;
 
 var logger = Logger.GetInstance();
-var hasError = false;
 
 try
 {
     var appSettings = Configuration.Load<AppSettings>("appsettings.json");
     var searchSettings = appSettings.SearchSettings;
 
-    await searchSettings.ChannelIDs
+    var results = await searchSettings.ChannelIDs
         .Select(channelId => channelId.Trim())
         .Distinct()
         .AsParallel()
         .SelectMany(YouTubeDataRetriever.EnumerateLatestVideos)
         .Where(video => searchSettings.IsMatch(video.Title, video.Description))
-        .Select(
-            video => Task.Run(() =>
-            {
-                try
-                {
-                    using var mutex = new Mutex(true, $"{nameof(UnarchivedStreamDownloader)}.{video.Id}", out var created);
-                    if (!created)
-                    {
-                        return;
-                    }
-
-                    try
-                    {
-                        logger.WriteLine(
-                            $"A video targeted for downloading has been found.\n"
-                            + $"  Channel ID:   {video.Channel.Id}\n"
-                            + $"  Channel Name: {video.Channel.Name}\n"
-                            + $"  Video ID:     {video.Id}\n"
-                            + $"  Video Title:  {video.Title}\n");
-
-                        if (!WaitForDownload(video.Id))
-                        {
-                            hasError = true;
-                        }
-                    }
-                    finally
-                    {
-                        mutex.ReleaseMutex();
-                    }
-                }
-                catch (Exception e)
-                {
-                    logger.WriteLine($"[{video.Id}] {e}");
-                    hasError = true;
-                }
-            }))
+        .Select(DownloadAsync)
         .WhenAll();
+
+    if (results.AllTrue())
+    {
+        return;
+    }
 }
 catch (Exception e)
 {
     logger.WriteLine($"{e}");
-    hasError = true;
 }
 
-if (hasError)
-{
-    Console.ReadLine();
-}
-
+Console.ReadLine();
 return;
+
+Task<bool> DownloadAsync(((string Id, string Name) Channel, string Id, string Title, string Description) video)
+{
+    return Task.Run(() =>
+    {
+        try
+        {
+            using var mutex = new Mutex(true, $"{nameof(UnarchivedStreamDownloader)}.{video.Id}", out var created);
+            if (!created)
+            {
+                return true;
+            }
+
+            try
+            {
+                logger.WriteLine(
+                    $"A video targeted for downloading has been found.\n"
+                    + $"  Channel ID:   {video.Channel.Id}\n"
+                    + $"  Channel Name: {video.Channel.Name}\n"
+                    + $"  Video ID:     {video.Id}\n"
+                    + $"  Video Title:  {video.Title}\n");
+
+                return WaitForDownload(video.Id);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
+        }
+        catch (Exception e)
+        {
+            logger.WriteLine($"[{video.Id}] {e}");
+            return false;
+        }
+    });
+}
 
 bool WaitForDownload(string videoId)
 {
