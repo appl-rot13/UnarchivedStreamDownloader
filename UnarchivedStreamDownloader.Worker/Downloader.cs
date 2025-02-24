@@ -212,6 +212,6 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
     private static bool ArchiveFileExists(string videoId)
     {
         return Directory.EnumerateFiles(Directory.GetCurrentDirectory(), $"*[{videoId}].*", SearchOption.TopDirectoryOnly)
-            .Any(filePath => !Regex.IsMatch(filePath, $@"\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}_\d{{2}} \[{videoId}\]\."));
+            .Any(filePath => !Regex.IsMatch(filePath, $@"\d{{4}}-\d{{2}}-\d{{2}} \d{{2}}_\d{{2}} \[{Regex.Escape(videoId)}\]\."));
     }
 }
