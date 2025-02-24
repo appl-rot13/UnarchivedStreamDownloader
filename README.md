@@ -41,8 +41,8 @@ Setting up the `appsettings.json` file to match your environment.
 - `DownloadAttempts` - Set the download attempts.
 - `ErrorRetryAttempts` - Set the retry attempts when a download error occurs.
 - `ErrorRetryIntervalSeconds` - Set the retry interval(in seconds) when a download error occurs.
-- `StartCheckBufferSeconds` - Set the buffer time(in seconds) before the scheduled start to check for the start of the stream.
-- `StartCheckIntervalSeconds` - Set the polling interval(in seconds) to check for the start of the stream.
+- `StartCheckBufferSeconds` (T1) - Set the buffer time(in seconds) before the scheduled start to check for the start of the stream.
+- `StartCheckIntervalSeconds` (T2) - Set the polling interval(in seconds) to check for the start of the stream.
 
 ```json
 "BehaviorSettings": {
@@ -59,7 +59,7 @@ Setting up the `appsettings.json` file to match your environment.
 #### Search Settings
 
 - `ChannelIDs` - Set the channel ID(s) to be downloaded.
-- `Keywords` - Set the keyword(s) contained in the streaming title to be downloaded.
+- `Keywords` - Set the keyword(s) contained in the title or description of the stream to be downloaded.
 
 ```json
 "SearchSettings": {
