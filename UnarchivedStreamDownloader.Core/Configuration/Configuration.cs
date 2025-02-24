@@ -13,7 +13,7 @@ public static class Configuration
             .Get<TValue>();
         if (value == null)
         {
-            throw new InvalidOperationException($"The {filePath} file is not configured.");
+            throw new InvalidOperationException($"'{filePath}' is not configured.");
         }
 
         return value;

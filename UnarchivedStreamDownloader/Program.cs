@@ -57,7 +57,10 @@ Task<bool> DownloadAsync(((string Id, string Name) Channel, string Id, string Ti
                     + $"  Video ID:     {video.Id}\n"
                     + $"  Video Title:  {video.Title}\n");
 
-                return WaitForDownload(video.Id);
+                var result = WaitForDownload(video.Id);
+                logger.WriteLine($"{video.Id}: The download has been ended or canceled. (Success: {result})");
+
+                return result;
             }
             finally
             {
@@ -66,7 +69,7 @@ Task<bool> DownloadAsync(((string Id, string Name) Channel, string Id, string Ti
         }
         catch (Exception e)
         {
-            logger.WriteLine($"[{video.Id}] {e}");
+            logger.WriteLine($"{video.Id}: {e}");
             return false;
         }
     });
