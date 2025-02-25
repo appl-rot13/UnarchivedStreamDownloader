@@ -23,8 +23,15 @@ try
         .Select(DownloadAsync)
         .WhenAll();
 
+    if (results.Length == 0)
+    {
+        return;
+    }
+
     if (results.AllTrue())
     {
+        logger.WriteLine("All downloads have been completed or canceled.");
+        appSettings.PauseOptionally();
         return;
     }
 }
@@ -33,6 +40,7 @@ catch (Exception e)
     logger.WriteLine($"{e}");
 }
 
+logger.WriteLine("Some downloads have failed.");
 Console.ReadLine();
 return;
 
@@ -58,7 +66,7 @@ Task<bool> DownloadAsync(((string Id, string Name) Channel, string Id, string Ti
                     + $"  Video Title:  {video.Title}\n");
 
                 var result = WaitForDownload(video.Id);
-                logger.WriteLine($"{video.Id}: The download has been ended or canceled. (Success: {result})");
+                logger.WriteLine($"{video.Id}: The download has {(result ? "been completed or canceled" : "failed")}.");
 
                 return result;
             }

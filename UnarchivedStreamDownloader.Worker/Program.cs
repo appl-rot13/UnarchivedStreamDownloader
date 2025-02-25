@@ -10,22 +10,25 @@ if (args.Length < 1)
 }
 
 var logger = Logger.GetInstance();
+var appSettings = Configuration.Load<AppSettings>("appsettings.json");
 
 try
 {
     var videoId = args[0];
     Console.Title = videoId;
 
-    var appSettings = Configuration.Load<AppSettings>("appsettings.json");
     var downloader = new Downloader(logger, appSettings.DownloaderSettings, appSettings.BehaviorSettings);
-
     if (await downloader.DownloadArchiveAsync(videoId))
     {
+        logger.WriteLine("The download has been completed.");
+        appSettings.PauseOptionally();
         return 0;
     }
 }
 catch (OperationCanceledException)
 {
+    logger.WriteLine("The download has been canceled.");
+    appSettings.PauseOptionally();
     return 0;
 }
 catch (Exception e)
@@ -33,5 +36,6 @@ catch (Exception e)
     logger.WriteLine($"{e}");
 }
 
+logger.WriteLine("The download has failed.");
 Console.ReadLine();
 return 1;
