@@ -2,9 +2,10 @@
 using UnarchivedStreamDownloader.Core.Utilities.Logging;
 using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Configuration;
+using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Worker;
 
-if (args.Length < 1)
+if (args.IsNullOrEmpty())
 {
     return 2;
 }

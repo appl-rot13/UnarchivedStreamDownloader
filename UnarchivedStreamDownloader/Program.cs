@@ -23,12 +23,12 @@ try
         .Select(DownloadAsync)
         .WhenAll();
 
-    if (results.Length == 0)
+    if (results.IsNullOrEmpty())
     {
         return;
     }
 
-    if (results.AllTrue())
+    if (results.IsAllTrue())
     {
         logger.WriteLine("All downloads have been completed or canceled.");
         appSettings.PauseOptionally();
