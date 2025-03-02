@@ -14,14 +14,17 @@ try
     var appSettings = Configuration.Load<AppSettings>("appsettings.json");
     var searchSettings = appSettings.SearchSettings;
 
-    var results = await searchSettings.ChannelIDs
-        .Select(channelId => channelId.Trim())
-        .Distinct()
-        .AsParallel()
-        .SelectMany(YouTubeDataRetriever.EnumerateLatestVideos)
-        .Where(video => searchSettings.IsMatch(video.Title, video.Description))
-        .Select(DownloadAsync)
-        .WhenAll();
+    var results =
+        (await searchSettings.ChannelIDs
+             .Select(channelId => channelId.Trim())
+             .Distinct()
+             .AsParallel()
+             .SelectMany(YouTubeDataRetriever.EnumerateLatestVideos)
+             .Where(video => searchSettings.IsMatch(video.Title, video.Description))
+             .Select(DownloadAsync)
+             .WhenAll())
+        .ExcludeNull()
+        .ToArray();
 
     if (results.IsNullOrEmpty())
     {
@@ -44,16 +47,16 @@ logger.WriteLine("Some downloads have failed.");
 Console.ReadLine();
 return;
 
-Task<bool> DownloadAsync(((string Id, string Name) Channel, string Id, string Title, string Description) video)
+Task<bool?> DownloadAsync(((string Id, string Name) Channel, string Id, string Title, string Description) video)
 {
-    return Task.Run(() =>
+    return Task.Run<bool?>(() =>
     {
         try
         {
             using var mutex = new Mutex(true, $"{nameof(UnarchivedStreamDownloader)}.{video.Id}", out var created);
             if (!created)
             {
-                return true;
+                return null;
             }
 
             try
