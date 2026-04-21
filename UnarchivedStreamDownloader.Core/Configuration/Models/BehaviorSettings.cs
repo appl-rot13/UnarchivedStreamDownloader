@@ -5,6 +5,8 @@ public class BehaviorSettings
 {
     public required bool PauseOnNormalExit { get; init; } = false;
 
+    public required bool SuppressHttpErrors { get; init; } = false;
+
     public required int DownloadAttempts { get; init; }
 
     public required int ErrorRetryAttempts { get; init; }

@@ -13,13 +13,14 @@ try
 {
     var appSettings = Configuration.Load<AppSettings>("appsettings.json");
     var searchSettings = appSettings.SearchSettings;
+    var suppressHttpErrors = appSettings.BehaviorSettings.SuppressHttpErrors;
 
     var results =
         (await searchSettings.ChannelIDs
              .Select(channelId => channelId.Trim())
              .Distinct()
              .AsParallel()
-             .SelectMany(YouTubeDataRetriever.EnumerateLatestVideos)
+             .SelectMany(channelId => EnumerateLatestVideos(channelId, suppressHttpErrors))
              .Where(video => searchSettings.IsMatch(video.Title, video.Description))
              .Select(DownloadAsync)
              .WhenAll())
@@ -46,6 +47,32 @@ catch (Exception e)
 logger.WriteLine("Some downloads have failed.");
 Console.ReadLine();
 return;
+
+IEnumerable<((string Id, string Name) Channel, string Id, string Title, string Description)> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
+{
+    using var enumerator = YouTubeDataRetriever.EnumerateLatestVideos(channelId).GetEnumerator();
+    while (true)
+    {
+        try
+        {
+            if (!enumerator.MoveNext())
+            {
+                yield break;
+            }
+        }
+        catch (HttpRequestException)
+        {
+            if (suppressHttpErrors)
+            {
+                yield break;
+            }
+
+            throw;
+        }
+
+        yield return enumerator.Current;
+    }
+}
 
 Task<bool?> DownloadAsync(((string Id, string Name) Channel, string Id, string Title, string Description) video)
 {
