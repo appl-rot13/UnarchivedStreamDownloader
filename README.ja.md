@@ -25,7 +25,7 @@ yt-dlp を使用してその配信をダウンロードします。
 #### yt-dlp の設定
 
 - `FilePath` - yt-dlp のファイルパスを指定します。
-- `Options` - 必要に応じて、yt-dlp の起動オプションを指定します。
+- `Options` - 省略可: yt-dlp の起動オプションを指定します。
 
 ```json
 "DownloaderSettings": {
@@ -43,6 +43,8 @@ yt-dlp を使用してその配信をダウンロードします。
 - `ErrorRetryIntervalSeconds` - ダウンロードエラー発生時のリトライ間隔(秒)を指定します。
 - `StartCheckBufferSeconds` (T1) - 配信開始予定時刻の前に、配信開始チェックを開始する時間(秒)を指定します。
 - `StartCheckIntervalSeconds` (T2) - 配信開始をチェックする間隔(秒)を指定します。
+- `PauseOnNormalExit` - 省略可: 正常終了時にウィンドウを開いたままにするかどうかを指定します。デフォルトは `false` です。
+- `SuppressHttpErrors` - 省略可: 通信エラー発生時に例外を表示しないかどうかを指定します。デフォルトは `false` です。
 
 ```json
 "BehaviorSettings": {
@@ -50,7 +52,9 @@ yt-dlp を使用してその配信をダウンロードします。
   "ErrorRetryAttempts": 3,
   "ErrorRetryIntervalSeconds": 1,
   "StartCheckBufferSeconds": 300,
-  "StartCheckIntervalSeconds": 60
+  "StartCheckIntervalSeconds": 60,
+  "PauseOnNormalExit": false,
+  "SuppressHttpErrors": false
 }
 ```
 

@@ -25,7 +25,7 @@ Setting up the `appsettings.json` file to match your environment.
 #### yt-dlp Settings
 
 - `FilePath` - Set the file path of yt-dlp.
-- `Options` - Set the command-line options for yt-dlp, if needed.
+- `Options` - Optional: Set the command-line options for yt-dlp.
 
 ```json
 "DownloaderSettings": {
@@ -43,6 +43,8 @@ Setting up the `appsettings.json` file to match your environment.
 - `ErrorRetryIntervalSeconds` - Set the retry interval(in seconds) when a download error occurs.
 - `StartCheckBufferSeconds` (T1) - Set the buffer time(in seconds) before the scheduled start to check for the start of the stream.
 - `StartCheckIntervalSeconds` (T2) - Set the polling interval(in seconds) to check for the start of the stream.
+- `PauseOnNormalExit` - Optional: Set whether to keep the window open on normal exit. The default is `false`.
+- `SuppressHttpErrors` - Optional: Set whether to suppress exceptions on HTTP errors. The default is `false`.
 
 ```json
 "BehaviorSettings": {
@@ -50,7 +52,9 @@ Setting up the `appsettings.json` file to match your environment.
   "ErrorRetryAttempts": 3,
   "ErrorRetryIntervalSeconds": 1,
   "StartCheckBufferSeconds": 300,
-  "StartCheckIntervalSeconds": 60
+  "StartCheckIntervalSeconds": 60,
+  "PauseOnNormalExit": false,
+  "SuppressHttpErrors": false
 }
 ```
 
