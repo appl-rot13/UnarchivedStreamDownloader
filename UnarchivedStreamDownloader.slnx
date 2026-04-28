@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="UnarchivedStreamDownloader.Core/UnarchivedStreamDownloader.Core.csproj" />
+  <Project Path="UnarchivedStreamDownloader.Worker/UnarchivedStreamDownloader.Worker.csproj" />
+  <Project Path="UnarchivedStreamDownloader/UnarchivedStreamDownloader.csproj" />
+</Solution>
