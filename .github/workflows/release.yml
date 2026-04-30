@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: Release (${{ matrix.runtime }})
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [ win-x64 ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup
+        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore -r ${{ matrix.runtime }}
+
+      - name: Publish
+        run: dotnet publish -r ${{ matrix.runtime }} -p:PublishProfile=FolderProfile -p:PublishDir=publish --no-restore
+
+      - name: Package
+        run: |
+          $releaseDir = "./release"
+          New-Item -ItemType Directory -Path $releaseDir
+
+          Get-ChildItem -Directory | ForEach-Object {
+            $publishDir = "./$($_.Name)/publish"
+
+            if (Test-Path $publishDir) {
+              Write-Host "Copy: $publishDir -> $releaseDir"
+              Copy-Item -Path "$publishDir/*" -Destination $releaseDir -Force
+            }
+          }
+
+          Copy-Item -Path LICENSE -Destination "$releaseDir/LICENSE.txt"
+          Copy-Item -Path ThirdPartyNotices.md -Destination $releaseDir
+
+          Compress-Archive -Path "$releaseDir/*" -DestinationPath ${{ github.event.repository.name }}-${{ matrix.runtime }}.zip
+
+      - name: Release
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        with:
+          files: ${{ github.event.repository.name }}-${{ matrix.runtime }}.zip
