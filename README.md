@@ -16,11 +16,11 @@ use yt-dlp to download the stream.
 ## Usage
 
 1. Download [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [its dependencies](https://github.com/yt-dlp/FFmpeg-Builds), then place them in the same folder.
-2. Setting up the `appsettings.json` file, then run the tool.
+2. Set up the `appsettings.json` file, then run the tool.
 
-### Setting Up `appsettings.json` File
+### Set Up `appsettings.json` File
 
-Setting up the `appsettings.json` file to match your environment.
+Set up the `appsettings.json` file to match your environment.
 
 #### yt-dlp Settings
 
