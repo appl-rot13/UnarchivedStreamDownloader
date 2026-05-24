@@ -32,6 +32,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
     </None>
+    <None Update="Tools\UpdateFFmpeg.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
+    </None>
   </ItemGroup>
 
 </Project>
