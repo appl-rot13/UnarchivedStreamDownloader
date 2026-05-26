@@ -1,5 +1,5 @@
 ﻿
-namespace UnarchivedStreamDownloader;
+namespace UnarchivedStreamDownloader.YouTube;
 
 using System.Xml.Linq;
 
@@ -10,7 +10,7 @@ public class YouTubeDataRetriever
         return $"https://www.youtube.com/feeds/videos.xml?channel_id={channelId}";
     }
 
-    public static IEnumerable<((string Id, string Name) Channel, string Id, string Title, string Description)> EnumerateLatestVideos(string channelId)
+    public static IEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId)
     {
         if (string.IsNullOrWhiteSpace(channelId))
         {
@@ -30,7 +30,7 @@ public class YouTubeDataRetriever
             yield break;
         }
 
-        var channel = (channelId, channelName);
+        var channel = new YouTubeChannel(channelId, channelName);
         foreach (var entry in feed.Elements(xmlNamespace.GetName("entry")))
         {
             var videoId = entry.Element(youtubeNamespace.GetName("videoId"))?.Value;
@@ -51,7 +51,7 @@ public class YouTubeDataRetriever
                 continue;
             }
 
-            yield return (channel, videoId, videoTitle, videoDescription);
+            yield return new YouTubeVideo(channel, videoId, videoTitle, videoDescription);
         }
     }
 }

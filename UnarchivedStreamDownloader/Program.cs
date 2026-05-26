@@ -1,11 +1,11 @@
 ﻿
 using System.Diagnostics;
 
-using UnarchivedStreamDownloader;
 using UnarchivedStreamDownloader.Core.Configuration;
 using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Core.Utilities.Logging;
+using UnarchivedStreamDownloader.YouTube;
 
 var logger = Logger.GetInstance();
 
@@ -48,7 +48,7 @@ logger.WriteLine("Some downloads have failed.");
 Console.ReadLine();
 return;
 
-IEnumerable<((string Id, string Name) Channel, string Id, string Title, string Description)> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
+IEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
 {
     using var enumerator = YouTubeDataRetriever.EnumerateLatestVideos(channelId).GetEnumerator();
     while (true)
@@ -74,7 +74,7 @@ IEnumerable<((string Id, string Name) Channel, string Id, string Title, string D
     }
 }
 
-Task<bool?> DownloadAsync(((string Id, string Name) Channel, string Id, string Title, string Description) video)
+Task<bool?> DownloadAsync(YouTubeVideo video)
 {
     return Task.Run<bool?>(() =>
     {
