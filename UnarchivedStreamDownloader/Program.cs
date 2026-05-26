@@ -20,7 +20,7 @@ try
              .Select(channelId => channelId.Trim())
              .Distinct()
              .AsParallel()
-             .SelectMany(channelId => EnumerateLatestVideos(channelId, suppressHttpErrors))
+             .SelectMany(channelId => YouTubeDataRetriever.EnumerateLatestVideos(channelId, suppressHttpErrors))
              .Where(video => searchSettings.IsMatch(video.Title, video.Description))
              .Select(DownloadAsync)
              .WhenAll())
@@ -47,32 +47,6 @@ catch (Exception e)
 logger.WriteLine("Some downloads have failed.");
 Console.ReadLine();
 return;
-
-IEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
-{
-    using var enumerator = YouTubeDataRetriever.EnumerateLatestVideos(channelId).GetEnumerator();
-    while (true)
-    {
-        try
-        {
-            if (!enumerator.MoveNext())
-            {
-                yield break;
-            }
-        }
-        catch (HttpRequestException)
-        {
-            if (suppressHttpErrors)
-            {
-                yield break;
-            }
-
-            throw;
-        }
-
-        yield return enumerator.Current;
-    }
-}
 
 Task<bool?> DownloadAsync(YouTubeVideo video)
 {

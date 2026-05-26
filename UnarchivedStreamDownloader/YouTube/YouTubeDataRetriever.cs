@@ -54,4 +54,30 @@ public class YouTubeDataRetriever
             yield return new YouTubeVideo(channel, videoId, videoTitle, videoDescription);
         }
     }
+
+    public static IEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
+    {
+        using var enumerator = EnumerateLatestVideos(channelId).GetEnumerator();
+        while (true)
+        {
+            try
+            {
+                if (!enumerator.MoveNext())
+                {
+                    yield break;
+                }
+            }
+            catch (HttpRequestException)
+            {
+                if (suppressHttpErrors)
+                {
+                    yield break;
+                }
+
+                throw;
+            }
+
+            yield return enumerator.Current;
+        }
+    }
 }
