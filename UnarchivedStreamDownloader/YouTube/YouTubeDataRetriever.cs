@@ -3,14 +3,16 @@ namespace UnarchivedStreamDownloader.YouTube;
 
 using System.Xml.Linq;
 
-public class YouTubeDataRetriever
+using UnarchivedStreamDownloader.Core.Utilities;
+
+public class YouTubeDataRetriever(IHttpReader httpReader)
 {
     public static string GetFeedUrl(string channelId)
     {
         return $"https://www.youtube.com/feeds/videos.xml?channel_id={channelId}";
     }
 
-    public static IEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId)
+    public async IAsyncEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId)
     {
         if (string.IsNullOrWhiteSpace(channelId))
         {
@@ -18,7 +20,7 @@ public class YouTubeDataRetriever
         }
 
         var url = GetFeedUrl(channelId);
-        var feed = XElement.Load(url);
+        var feed = XElement.Parse(await httpReader.GetResponseAsync(url));
 
         var xmlNamespace = feed.GetDefaultNamespace();
         var youtubeNamespace = feed.GetNamespaceOfPrefix("yt") ?? XNamespace.None;
@@ -55,14 +57,14 @@ public class YouTubeDataRetriever
         }
     }
 
-    public static IEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
+    public async IAsyncEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
     {
-        using var enumerator = EnumerateLatestVideos(channelId).GetEnumerator();
+        await using var enumerator = this.EnumerateLatestVideos(channelId).GetAsyncEnumerator();
         while (true)
         {
             try
             {
-                if (!enumerator.MoveNext())
+                if (!await enumerator.MoveNextAsync())
                 {
                     yield break;
                 }

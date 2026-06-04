@@ -1,8 +1,10 @@
 ﻿
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using UnarchivedStreamDownloader.Core.Configuration;
 using UnarchivedStreamDownloader.Core.Configuration.Models;
+using UnarchivedStreamDownloader.Core.Utilities;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Core.Utilities.Logging;
 using UnarchivedStreamDownloader.YouTube;
@@ -15,18 +17,24 @@ try
     var searchSettings = appSettings.SearchSettings;
     var suppressHttpErrors = appSettings.BehaviorSettings.SuppressHttpErrors;
 
-    var results =
-        (await searchSettings.ChannelIDs
-             .Select(channelId => channelId.Trim())
-             .Distinct()
-             .AsParallel()
-             .SelectMany(channelId => YouTubeDataRetriever.EnumerateLatestVideos(channelId, suppressHttpErrors))
-             .Where(video => searchSettings.IsMatch(video.Title, video.Description))
-             .Select(DownloadAsync)
-             .WhenAll())
-        .ExcludeNull()
-        .ToArray();
+    var youtube = new YouTubeDataRetriever(new HttpReader(new HttpClient()));
+    var downloadTasks = new ConcurrentBag<Task<bool?>>();
 
+    await searchSettings.ChannelIDs
+        .Select(id => id.Trim())
+        .Distinct()
+        .Select(async channelId =>
+        {
+            await foreach (var video in youtube.EnumerateLatestVideos(channelId, suppressHttpErrors))
+            {
+                if (searchSettings.IsMatch(video.Title, video.Description))
+                {
+                    downloadTasks.Add(DownloadAsync(video));
+                }
+            }
+        }).WhenAll();
+
+    var results = (await downloadTasks.WhenAll()).OfType<bool>().ToArray();
     if (results.IsNullOrEmpty())
     {
         return;
