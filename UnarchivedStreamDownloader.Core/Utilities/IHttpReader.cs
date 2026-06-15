@@ -3,5 +3,5 @@ namespace UnarchivedStreamDownloader.Core.Utilities;
 
 public interface IHttpReader
 {
-    public Task<string> GetResponseAsync(string url);
+    public Task<HttpResponseMessage> GetResponseAsync(string url);
 }
