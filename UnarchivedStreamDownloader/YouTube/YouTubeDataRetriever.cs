@@ -12,7 +12,7 @@ public class YouTubeDataRetriever(IHttpReader httpReader)
         return $"https://www.youtube.com/feeds/videos.xml?channel_id={channelId}";
     }
 
-    public async IAsyncEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId)
+    public async IAsyncEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
     {
         if (string.IsNullOrWhiteSpace(channelId))
         {
@@ -20,7 +20,19 @@ public class YouTubeDataRetriever(IHttpReader httpReader)
         }
 
         var url = GetFeedUrl(channelId);
-        var feed = XElement.Parse(await httpReader.GetResponseAsync(url));
+        var response = await httpReader.GetResponseAsync(url);
+        if (!response.IsSuccessStatusCode)
+        {
+            if (suppressHttpErrors)
+            {
+                yield break;
+            }
+
+            response.EnsureSuccessStatusCode();
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        var feed = XElement.Load(stream);
 
         var xmlNamespace = feed.GetDefaultNamespace();
         var youtubeNamespace = feed.GetNamespaceOfPrefix("yt") ?? XNamespace.None;
@@ -54,32 +66,6 @@ public class YouTubeDataRetriever(IHttpReader httpReader)
             }
 
             yield return new YouTubeVideo(channel, videoId, videoTitle, videoDescription);
-        }
-    }
-
-    public async IAsyncEnumerable<YouTubeVideo> EnumerateLatestVideos(string channelId, bool suppressHttpErrors)
-    {
-        await using var enumerator = this.EnumerateLatestVideos(channelId).GetAsyncEnumerator();
-        while (true)
-        {
-            try
-            {
-                if (!await enumerator.MoveNextAsync())
-                {
-                    yield break;
-                }
-            }
-            catch (HttpRequestException)
-            {
-                if (suppressHttpErrors)
-                {
-                    yield break;
-                }
-
-                throw;
-            }
-
-            yield return enumerator.Current;
         }
     }
 }
