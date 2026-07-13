@@ -16,6 +16,12 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
 
     public async Task<bool> DownloadArchiveAsync(string videoId, int count)
     {
+        if (ArchiveFileExists(videoId))
+        {
+            logger?.WriteLine("The video has already been downloaded.");
+            return true;
+        }
+
         if (!await this.WaitForStartAsync(videoId))
         {
             // 配信が削除された場合
