@@ -4,6 +4,7 @@ namespace UnarchivedStreamDownloader.YouTube;
 using System.Xml.Linq;
 
 using UnarchivedStreamDownloader.Core.Utilities;
+using UnarchivedStreamDownloader.Core.YouTube;
 
 public class YouTubeDataRetriever(IHttpReader httpReader)
 {

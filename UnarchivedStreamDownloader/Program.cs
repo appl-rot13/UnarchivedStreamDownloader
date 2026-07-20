@@ -7,6 +7,7 @@ using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Utilities;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Core.Utilities.Logging;
+using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
 
 var logger = Logger.GetInstance();
@@ -27,7 +28,7 @@ try
         {
             await foreach (var video in youtube.EnumerateLatestVideos(channelId, suppressHttpErrors))
             {
-                if (searchSettings.IsMatch(video.Title, video.Description))
+                if (searchSettings.IsMatch(video))
                 {
                     downloadTasks.Add(DownloadAsync(video));
                 }
