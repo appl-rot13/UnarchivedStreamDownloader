@@ -63,6 +63,7 @@ Set up the `appsettings.json` file to match your environment.
 #### Search Settings
 
 - `ChannelIDs` - Set the channel ID(s) to be downloaded.
+- `IgnoreVideoIDs` - Set the stream ID(s) to exclude from download.
 - `Keywords` - Set the keyword(s) contained in the title or description of the stream to be downloaded.
 
 ```json
@@ -70,6 +71,9 @@ Set up the `appsettings.json` file to match your environment.
   "ChannelIDs": [
     ""
   ],
+	"IgnoreVideoIDs": [
+		""
+	],
   "Keywords": [
     "unarchive",
     "no archive"

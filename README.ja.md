@@ -63,6 +63,7 @@ yt-dlp を使用してその配信をダウンロードします。
 #### 検索の設定
 
 - `ChannelIDs` - ダウンロード対象とするチャンネルのIDを指定します。
+- `IgnoreVideoIDs` - ダウンロード対象としない配信のIDを指定します。
 - `Keywords` - ダウンロード対象とする配信のタイトルまたは概要欄に含まれるキーワードを指定します。
 
 ```json
@@ -70,6 +71,9 @@ yt-dlp を使用してその配信をダウンロードします。
   "ChannelIDs": [
     ""
   ],
+	"IgnoreVideoIDs": [
+		""
+	],
   "Keywords": [
     "unarchive",
     "no archive"
