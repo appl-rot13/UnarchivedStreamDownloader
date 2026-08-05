@@ -1,4 +1,9 @@
 <Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/UnarchivedStreamDownloader.CoreTest/UnarchivedStreamDownloader.CoreTest.csproj" />
+    <Project Path="Tests/UnarchivedStreamDownloader.WorkerTest/UnarchivedStreamDownloader.WorkerTest.csproj" />
+    <Project Path="Tests/UnarchivedStreamDownloaderTest/UnarchivedStreamDownloaderTest.csproj" />
+  </Folder>
   <Project Path="UnarchivedStreamDownloader.Core/UnarchivedStreamDownloader.Core.csproj" />
   <Project Path="UnarchivedStreamDownloader.Worker/UnarchivedStreamDownloader.Worker.csproj" />
   <Project Path="UnarchivedStreamDownloader/UnarchivedStreamDownloader.csproj" />
