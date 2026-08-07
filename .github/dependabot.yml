@@ -5,3 +5,7 @@ updates:
     schedule:
       interval: weekly
       day: friday
+    groups:
+      codeql-actions:
+        patterns:
+          - "github/codeql-action/*"
