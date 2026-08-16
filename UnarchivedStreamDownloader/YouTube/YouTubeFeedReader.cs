@@ -3,13 +3,14 @@ namespace UnarchivedStreamDownloader.YouTube;
 
 using System.Xml.Linq;
 
-using UnarchivedStreamDownloader.Core.Utilities;
+using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.YouTube;
 
-public class YouTubeDataRetriever(IHttpReader httpReader)
+public class YouTubeFeedReader(IHttpReader httpReader) : IYouTubeFeedReader
 {
     public static string GetFeedUrl(string channelId)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(channelId, nameof(channelId));
         return $"https://www.youtube.com/feeds/videos.xml?channel_id={channelId}";
     }
 
@@ -21,7 +22,7 @@ public class YouTubeDataRetriever(IHttpReader httpReader)
         }
 
         var url = GetFeedUrl(channelId);
-        var response = await httpReader.GetResponseAsync(url);
+        using var response = await httpReader.GetResponseAsync(url);
         if (!response.IsSuccessStatusCode)
         {
             if (suppressHttpErrors)

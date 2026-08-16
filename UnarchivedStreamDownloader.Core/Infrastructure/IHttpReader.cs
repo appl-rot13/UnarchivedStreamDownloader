@@ -1,5 +1,5 @@
 ﻿
-namespace UnarchivedStreamDownloader.Core.Utilities;
+namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
 public interface IHttpReader
 {

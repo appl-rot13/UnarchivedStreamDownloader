@@ -1,5 +1,5 @@
 ﻿
-namespace UnarchivedStreamDownloader.Core.Utilities.Logging;
+namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
 public interface ILogger
 {

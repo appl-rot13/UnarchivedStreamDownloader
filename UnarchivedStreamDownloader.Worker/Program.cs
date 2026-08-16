@@ -1,7 +1,7 @@
 ﻿
-using UnarchivedStreamDownloader.Core.Utilities.Logging;
-using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Configuration;
+using UnarchivedStreamDownloader.Core.Configuration.Models;
+using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Worker;
 

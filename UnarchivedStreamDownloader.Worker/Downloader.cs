@@ -6,8 +6,8 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 using UnarchivedStreamDownloader.Core.Configuration.Models;
+using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
-using UnarchivedStreamDownloader.Core.Utilities.Logging;
 
 public class Downloader(ILogger? logger, DownloaderSettings downloader, BehaviorSettings behavior)
 {

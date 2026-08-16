@@ -1,5 +1,5 @@
 ﻿
-namespace UnarchivedStreamDownloader.Core.Utilities.Logging;
+namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
 using System.Text;
 
