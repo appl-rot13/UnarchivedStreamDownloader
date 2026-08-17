@@ -185,11 +185,11 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
 
         var startInfo =
             new ProcessStartInfo
-                {
-                    FileName = filePath,
-                    Arguments = arguments,
-                    UseShellExecute = false,
-                };
+            {
+                FileName = filePath,
+                Arguments = arguments,
+                UseShellExecute = false,
+            };
         startInfoSetting(startInfo);
 
         var process = Process.Start(startInfo);

@@ -22,7 +22,7 @@ public class YouTubeFeedReaderTest
     {
         YouTubeFeedReader.GetFeedUrl(channelId).ShouldBe(expected);
     }
- 
+
     [TestMethod]
     [DataRow("")]
     [DataRow(" ")]
