@@ -1,18 +1,18 @@
-﻿
-namespace UnarchivedStreamDownloader.Worker;
+﻿namespace UnarchivedStreamDownloader.Worker;
 
 using System.Diagnostics;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
-
 using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
 public class Downloader(ILogger? logger, DownloaderSettings downloader, BehaviorSettings behavior)
 {
-    public Task<bool> DownloadArchiveAsync(string videoId) =>
-        this.DownloadArchiveAsync(videoId, behavior.DownloadAttempts);
+    public Task<bool> DownloadArchiveAsync(string videoId)
+    {
+        return this.DownloadArchiveAsync(videoId, behavior.DownloadAttempts);
+    }
 
     public async Task<bool> DownloadArchiveAsync(string videoId, int count)
     {
@@ -49,8 +49,10 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
         return false;
     }
 
-    public Task<bool> DownloadWithRetryAsync(string videoId) =>
-        this.DownloadWithRetryAsync(videoId, behavior.ErrorRetryAttempts);
+    public Task<bool> DownloadWithRetryAsync(string videoId)
+    {
+        return this.DownloadWithRetryAsync(videoId, behavior.ErrorRetryAttempts);
+    }
 
     public async Task<bool> DownloadWithRetryAsync(string videoId, int count)
     {
@@ -171,8 +173,10 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
 
     private Process StartDownloader(
         string videoId,
-        params IEnumerable<string> options) =>
-        this.StartDownloader(videoId, _ => { }, options);
+        params IEnumerable<string> options)
+    {
+        return this.StartDownloader(videoId, _ => { }, options);
+    }
 
     private Process StartDownloader(
         string videoId,
@@ -183,13 +187,12 @@ public class Downloader(ILogger? logger, DownloaderSettings downloader, Behavior
         var arguments = CreateArguments(videoId, options);
         logger?.WriteLine($"Exec: {filePath} {arguments}");
 
-        var startInfo =
-            new ProcessStartInfo
-            {
-                FileName = filePath,
-                Arguments = arguments,
-                UseShellExecute = false,
-            };
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = filePath,
+            Arguments = arguments,
+            UseShellExecute = false,
+        };
         startInfoSetting(startInfo);
 
         var process = Process.Start(startInfo);

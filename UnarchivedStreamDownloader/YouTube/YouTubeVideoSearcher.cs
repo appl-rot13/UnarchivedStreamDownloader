@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.YouTube;
+﻿namespace UnarchivedStreamDownloader.YouTube;
 
 using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;

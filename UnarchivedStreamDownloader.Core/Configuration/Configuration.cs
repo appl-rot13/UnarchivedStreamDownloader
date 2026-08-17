@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.Core.Configuration;
+﻿namespace UnarchivedStreamDownloader.Core.Configuration;
 
 using Microsoft.Extensions.Configuration;
 

@@ -1,8 +1,6 @@
-﻿
-namespace UnarchivedStreamDownloader.YouTube;
+﻿namespace UnarchivedStreamDownloader.YouTube;
 
 using System.Xml.Linq;
-
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.YouTube;
 

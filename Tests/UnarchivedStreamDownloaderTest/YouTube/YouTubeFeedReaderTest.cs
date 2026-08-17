@@ -1,14 +1,10 @@
-﻿
-namespace UnarchivedStreamDownloaderTest.YouTube;
-
-using NSubstitute;
-
-using Shouldly;
+﻿namespace UnarchivedStreamDownloaderTest.YouTube;
 
 using System.Net;
 using System.Xml;
 using System.Xml.Linq;
-
+using NSubstitute;
+using Shouldly;
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
@@ -144,15 +140,18 @@ public class YouTubeFeedReaderTest
         XNamespace yt = "http://www.youtube.com/xml/schemas/2015";
         XNamespace media = "http://search.yahoo.com/mrss/";
 
-        return new XElement(atom + "feed",
+        return new XElement(
+            atom + "feed",
             new XAttribute(XNamespace.Xmlns + "yt", yt),
             new XAttribute(XNamespace.Xmlns + "media", media),
             channelName == null ? null : new XElement(atom + "title", channelName),
-            entries.Select(entry =>
-                new XElement(atom + "entry",
+            entries.Select(
+                entry => new XElement(
+                    atom + "entry",
                     entry.videoId == null ? null : new XElement(yt + "videoId", entry.videoId),
                     entry.title == null ? null : new XElement(atom + "title", entry.title),
-                    new XElement(media + "group",
+                    new XElement(
+                        media + "group",
                         entry.description == null ? null : new XElement(media + "description", entry.description)
                     )
                 )

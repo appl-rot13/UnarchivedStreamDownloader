@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.Core.Infrastructure;
+﻿namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
 public class MutexGuardFactory : ILockFactory
 {

@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.YouTube;
+﻿namespace UnarchivedStreamDownloader.YouTube;
 
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.YouTube;
@@ -23,10 +22,10 @@ public class YouTubeVideoDownloader(ILogger logger, ILockFactory lockFactory, IP
 
             logger.WriteLine(
                 $"A video targeted for downloading has been found.\n"
-                + $"  Channel ID:   {video.Channel.Id}\n"
-                + $"  Channel Name: {video.Channel.Name}\n"
-                + $"  Video ID:     {video.Id}\n"
-                + $"  Video Title:  {video.Title}\n");
+                    + $"  Channel ID:   {video.Channel.Id}\n"
+                    + $"  Channel Name: {video.Channel.Name}\n"
+                    + $"  Video ID:     {video.Id}\n"
+                    + $"  Video Title:  {video.Title}\n");
 
             var result = processRunner.Run(video.Id);
             logger.WriteLine($"{video.Id}: The download has {(result ? "been completed or canceled" : "failed")}.");

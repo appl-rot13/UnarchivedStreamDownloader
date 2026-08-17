@@ -1,10 +1,7 @@
-﻿
-namespace UnarchivedStreamDownloaderTest.YouTube;
+﻿namespace UnarchivedStreamDownloaderTest.YouTube;
 
 using NSubstitute;
-
 using Shouldly;
-
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;

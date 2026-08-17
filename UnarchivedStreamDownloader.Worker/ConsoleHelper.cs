@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.Worker;
+﻿namespace UnarchivedStreamDownloader.Worker;
 
 public static class ConsoleHelper
 {

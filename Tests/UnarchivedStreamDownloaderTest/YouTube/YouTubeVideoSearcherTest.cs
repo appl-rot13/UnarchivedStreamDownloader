@@ -1,10 +1,7 @@
-﻿
-namespace UnarchivedStreamDownloaderTest.YouTube;
+﻿namespace UnarchivedStreamDownloaderTest.YouTube;
 
 using NSubstitute;
-
 using Shouldly;
-
 using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
@@ -43,8 +40,7 @@ public class YouTubeVideoSearcherTest
         var (channel, videos) = CreateYouTubeData();
         var searcher = CreateSearcher(videos, ["Video"], ["VideoID-2"]);
 
-        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe(
-        [
+        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
         ]);
@@ -56,8 +52,7 @@ public class YouTubeVideoSearcherTest
         var (channel, videos) = CreateYouTubeData();
         var searcher = CreateSearcher(videos, ["Video"]);
 
-        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe(
-        [
+        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
@@ -74,8 +69,7 @@ public class YouTubeVideoSearcherTest
         var (channel, videos) = CreateYouTubeData();
         var searcher = CreateSearcher(videos, [keyword]);
 
-        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe(
-        [
+        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
         ]);
     }
@@ -86,8 +80,7 @@ public class YouTubeVideoSearcherTest
         var (channel, videos) = CreateYouTubeData();
         var searcher = CreateSearcher(videos, ["Title-1", "Description-2"]);
 
-        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe(
-        [
+        (await searcher.EnumerateMatchingVideos(channel.Id, false).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
         ]);

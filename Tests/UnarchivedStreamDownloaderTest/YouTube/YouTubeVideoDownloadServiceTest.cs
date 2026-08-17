@@ -1,29 +1,28 @@
-﻿
-namespace UnarchivedStreamDownloaderTest.YouTube;
-
-using NSubstitute;
-
-using Shouldly;
+﻿namespace UnarchivedStreamDownloaderTest.YouTube;
 
 using System.Collections.Immutable;
 using System.Text;
-
+using NSubstitute;
+using Shouldly;
 using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
 
 [TestClass]
 public class YouTubeVideoDownloadServiceTest
 {
-    public static IEnumerable<DownloadResultsTestCase> DownloadResultsTestCases() =>
-    [
-        new DownloadResultsTestCase([ true,  true,  true], [ true,  true,  true]),
-        new DownloadResultsTestCase([ true, false,  true], [ true, false,  true]),
-        new DownloadResultsTestCase([false, false, false], [false, false, false]),
-        new DownloadResultsTestCase([ true,  null,  true], [ true,  true]),
-        new DownloadResultsTestCase([false,  null, false], [false, false]),
-        new DownloadResultsTestCase([ true,  null, false], [ true, false]),
-        new DownloadResultsTestCase([ null,  null,  null], []),
-    ];
+    public static IEnumerable<DownloadResultsTestCase> DownloadResultsTestCases()
+    {
+        return
+        [
+            new DownloadResultsTestCase([ true,  true,  true], [ true,  true,  true]),
+            new DownloadResultsTestCase([ true, false,  true], [ true, false,  true]),
+            new DownloadResultsTestCase([false, false, false], [false, false, false]),
+            new DownloadResultsTestCase([ true,  null,  true], [ true,  true]),
+            new DownloadResultsTestCase([false,  null, false], [false, false]),
+            new DownloadResultsTestCase([ true,  null, false], [ true, false]),
+            new DownloadResultsTestCase([ null,  null,  null], []),
+        ];
+    }
 
     [TestMethod]
     public async Task DownloadAllAsync_NoVideos_ReturnsEmpty()
@@ -67,7 +66,8 @@ public class YouTubeVideoDownloadServiceTest
 
     private static IReadOnlyList<YouTubeVideo> CreateYouTubeVideos()
     {
-        return [
+        return
+        [
             new YouTubeVideo(new YouTubeChannel("ChannelID-1", "ChannelName-1"), "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(new YouTubeChannel("ChannelID-2", "ChannelName-2"), "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(new YouTubeChannel("ChannelID-2", "ChannelName-2"), "VideoID-3", "VideoTitle-3", "VideoDescription-3"),

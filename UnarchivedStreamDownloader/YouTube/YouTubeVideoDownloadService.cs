@@ -1,8 +1,6 @@
-﻿
-namespace UnarchivedStreamDownloader.YouTube;
+﻿namespace UnarchivedStreamDownloader.YouTube;
 
 using System.Collections.Concurrent;
-
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
 public class YouTubeVideoDownloadService(IYouTubeVideoSearcher searcher, IYouTubeVideoDownloader downloader)
@@ -26,7 +24,8 @@ public class YouTubeVideoDownloadService(IYouTubeVideoSearcher searcher, IYouTub
                 {
                     downloadTasks.Add(downloader.DownloadAsync(video));
                 }
-            }).WhenAll();
+            })
+            .WhenAll();
 
         return downloadTasks;
     }

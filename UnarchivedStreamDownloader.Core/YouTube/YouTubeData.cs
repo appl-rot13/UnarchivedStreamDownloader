@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.Core.YouTube;
+﻿namespace UnarchivedStreamDownloader.Core.YouTube;
 
 public record YouTubeChannel(
     string Id,

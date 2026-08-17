@@ -1,5 +1,4 @@
-﻿
-namespace UnarchivedStreamDownloader.Core.Utilities.Extensions;
+﻿namespace UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
 public static class StringExtensions
 {
