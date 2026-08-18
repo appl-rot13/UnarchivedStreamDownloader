@@ -4,11 +4,11 @@ using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 using UnarchivedStreamDownloader.Core.YouTube;
 
-public class YouTubeVideoSearcher(SearchSettings settings, IYouTubeFeedReader reader) : IYouTubeVideoSearcher
+public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource source) : IYouTubeVideoSource
 {
-    public async IAsyncEnumerable<YouTubeVideo> EnumerateMatchingVideos(string channelId, bool suppressHttpErrors)
+    public async IAsyncEnumerable<YouTubeVideo> EnumerateVideos(string channelId, bool suppressHttpErrors)
     {
-        await foreach (var video in reader.EnumerateLatestVideos(channelId, suppressHttpErrors))
+        await foreach (var video in source.EnumerateVideos(channelId, suppressHttpErrors))
         {
             if (this.IsMatch(video))
             {

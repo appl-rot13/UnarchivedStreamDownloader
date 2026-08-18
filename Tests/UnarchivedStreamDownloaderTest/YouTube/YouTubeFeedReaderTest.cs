@@ -38,52 +38,52 @@ public class YouTubeFeedReaderTest
     [DataRow("")]
     [DataRow(" ")]
     [DataRow(null)]
-    public async Task EnumerateLatestVideos_InvalidChannelId_ReturnsEmpty(string channelId)
+    public async Task EnumerateVideos_InvalidChannelId_ReturnsEmpty(string channelId)
     {
         var feedReader = CreateFeedReader();
-        (await feedReader.EnumerateLatestVideos(channelId, false).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos(channelId, false).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
-    public async Task EnumerateLatestVideos_SuppressHttpErrors_ReturnsEmpty()
+    public async Task EnumerateVideos_SuppressHttpErrors_ReturnsEmpty()
     {
         var feedReader = CreateFeedReader(CreateNotFoundResponse());
-        (await feedReader.EnumerateLatestVideos("ChannelID", true).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID", true).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
-    public async Task EnumerateLatestVideos_DoNotSuppressHttpErrors_ThrowsHttpRequestException()
+    public async Task EnumerateVideos_DoNotSuppressHttpErrors_ThrowsHttpRequestException()
     {
         var feedReader = CreateFeedReader(CreateNotFoundResponse());
-        Should.Throw<HttpRequestException>(async () => await feedReader.EnumerateLatestVideos("ChannelID", false).ToListAsync());
+        Should.Throw<HttpRequestException>(async () => await feedReader.EnumerateVideos("ChannelID", false).ToListAsync());
     }
 
     [TestMethod]
-    public async Task EnumerateLatestVideos_InvalidXml_ThrowsXmlException()
+    public async Task EnumerateVideos_InvalidXml_ThrowsXmlException()
     {
         var feedReader = CreateFeedReader(CreateInvalidResponse());
-        Should.Throw<XmlException>(async () => await feedReader.EnumerateLatestVideos("ChannelID", false).ToListAsync());
+        Should.Throw<XmlException>(async () => await feedReader.EnumerateVideos("ChannelID", false).ToListAsync());
     }
 
     [TestMethod]
     [DataRow("")]
     [DataRow(" ")]
     [DataRow(null)]
-    public async Task EnumerateLatestVideos_InvalidChannelName_ReturnsEmpty(string? channelName)
+    public async Task EnumerateVideos_InvalidChannelName_ReturnsEmpty(string? channelName)
     {
         var feed = CreateFeed(channelName, [("VideoID", "VideoTitle", "VideoDescription")]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateLatestVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
-    public async Task EnumerateLatestVideos_NoEntry_ReturnsEmpty()
+    public async Task EnumerateVideos_NoEntry_ReturnsEmpty()
     {
         var feed = CreateFeed("ChannelName", []);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateLatestVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -96,7 +96,7 @@ public class YouTubeFeedReaderTest
     [DataRow("VideoID-2", "VideoTitle-2", "")]
     [DataRow("VideoID-2", "VideoTitle-2", " ")]
     [DataRow("VideoID-2", "VideoTitle-2", null)]
-    public async Task EnumerateLatestVideos_InvalidEntry_SkipsEntry(string? videoId, string? videoTitle, string? videoDescription)
+    public async Task EnumerateVideos_InvalidEntry_SkipsEntry(string? videoId, string? videoTitle, string? videoDescription)
     {
         var channel = new YouTubeChannel("ChannelID", "ChannelName");
         var feed = CreateFeed(
@@ -108,14 +108,14 @@ public class YouTubeFeedReaderTest
             ]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateLatestVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await feedReader.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
         ]);
     }
 
     [TestMethod]
-    public async Task EnumerateLatestVideos_ReturnsVideos()
+    public async Task EnumerateVideos_ReturnsVideos()
     {
         var channel = new YouTubeChannel("ChannelID", "ChannelName");
         var feed = CreateFeed(
@@ -127,7 +127,7 @@ public class YouTubeFeedReaderTest
             ]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateLatestVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await feedReader.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),

@@ -13,7 +13,7 @@ try
     var suppressHttpErrors = appSettings.BehaviorSettings.SuppressHttpErrors;
 
     var downloadService = new YouTubeVideoDownloadService(
-        new YouTubeVideoSearcher(
+        new YouTubeVideoFilter(
             searchSettings,
             new YouTubeFeedReader(new HttpReader(new HttpClient()))),
         new YouTubeVideoDownloader(

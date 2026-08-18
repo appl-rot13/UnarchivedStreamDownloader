@@ -53,9 +53,9 @@ public class YouTubeVideoDownloadServiceTest
 
         await service.DownloadAllAsync(channelIds, suppressHttpErrors);
 
-        searcher.Received(2).EnumerateMatchingVideos(Arg.Any<string>(), Arg.Any<bool>());
-        searcher.Received(1).EnumerateMatchingVideos("ChannelID-1", suppressHttpErrors);
-        searcher.Received(1).EnumerateMatchingVideos("ChannelID-2", suppressHttpErrors);
+        searcher.Received(2).EnumerateVideos(Arg.Any<string>(), Arg.Any<bool>());
+        searcher.Received(1).EnumerateVideos("ChannelID-1", suppressHttpErrors);
+        searcher.Received(1).EnumerateVideos("ChannelID-2", suppressHttpErrors);
 
         await downloader.Received(videos.Count).DownloadAsync(Arg.Any<YouTubeVideo>());
         foreach (var video in videos)
@@ -81,27 +81,27 @@ public class YouTubeVideoDownloadServiceTest
     }
 
     private static YouTubeVideoDownloadService CreateService(
-        out IYouTubeVideoSearcher searcher,
+        out IYouTubeVideoSource source,
         out IYouTubeVideoDownloader downloader,
         IEnumerable<(YouTubeVideo Video, bool? Result)> downloadResults)
     {
-        searcher = Substitute.For<IYouTubeVideoSearcher>();
+        source = Substitute.For<IYouTubeVideoSource>();
         downloader = Substitute.For<IYouTubeVideoDownloader>();
 
-        searcher.EnumerateMatchingVideos(Arg.Any<string>(), Arg.Any<bool>()).Returns(Enumerable.Empty<YouTubeVideo>().ToAsyncEnumerable());
+        source.EnumerateVideos(Arg.Any<string>(), Arg.Any<bool>()).Returns(Enumerable.Empty<YouTubeVideo>().ToAsyncEnumerable());
         foreach (var group in downloadResults.GroupBy(t => t.Video.Channel.Id))
         {
             var channelId = group.Key;
             var videos = group.Select(t => t.Video);
 
-            searcher.EnumerateMatchingVideos(channelId, Arg.Any<bool>()).Returns(videos.ToAsyncEnumerable());
+            source.EnumerateVideos(channelId, Arg.Any<bool>()).Returns(videos.ToAsyncEnumerable());
             foreach (var (video, result) in group)
             {
                 downloader.DownloadAsync(video).Returns(Task.FromResult(result));
             }
         }
 
-        return new YouTubeVideoDownloadService(searcher, downloader);
+        return new YouTubeVideoDownloadService(source, downloader);
     }
 
     public record DownloadResultsTestCase(ImmutableArray<bool?> Results, ImmutableArray<bool> Expected)
