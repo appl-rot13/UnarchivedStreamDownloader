@@ -13,7 +13,7 @@ public class YouTubeVideoFilterTest
     public async Task EnumerateVideos_NoVideos_ReturnsEmpty()
     {
         var filter = CreateFilter([], [string.Empty]);
-        (await filter.EnumerateVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
+        (await filter.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -22,7 +22,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, []);
 
-        (await filter.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBeEmpty();
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -31,7 +31,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, [string.Empty]);
 
-        (await filter.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe(videos);
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe(videos);
     }
 
     [TestMethod]
@@ -40,7 +40,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Video"], ["VideoID-2"]);
 
-        (await filter.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
         ]);
@@ -52,7 +52,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Video"]);
 
-        (await filter.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
@@ -69,7 +69,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, [keyword]);
 
-        (await filter.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
         ]);
     }
@@ -80,21 +80,21 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Title-1", "Description-2"]);
 
-        (await filter.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
         ]);
     }
 
     [TestMethod]
-    [DataRow("ChannelID-1", false)]
-    [DataRow("ChannelID-2", true)]
-    public async Task EnumerateVideos_PassesArguments(string channelId, bool suppressHttpErrors)
+    [DataRow("ChannelID-1")]
+    [DataRow("ChannelID-2")]
+    public async Task EnumerateVideos_PassesArguments(string channelId)
     {
         var filter = CreateFilter(out var reader, [], []);
-        await filter.EnumerateVideos(channelId, suppressHttpErrors).ToListAsync();
+        await filter.EnumerateVideos(channelId).ToListAsync();
 
-        reader.Received(1).EnumerateVideos(channelId, suppressHttpErrors);
+        reader.Received(1).EnumerateVideos(channelId);
     }
 
     private static (YouTubeChannel, IReadOnlyList<YouTubeVideo>) CreateYouTubeData()
@@ -132,7 +132,7 @@ public class YouTubeVideoFilterTest
         };
 
         source = Substitute.For<IYouTubeVideoSource>();
-        source.EnumerateVideos(Arg.Any<string>(), Arg.Any<bool>()).Returns(videos.ToAsyncEnumerable());
+        source.EnumerateVideos(Arg.Any<string>()).Returns(videos.ToAsyncEnumerable());
 
         return new YouTubeVideoFilter(settings, source);
     }

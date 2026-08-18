@@ -15,13 +15,13 @@ try
     var downloadService = new YouTubeVideoDownloadService(
         new YouTubeVideoFilter(
             searchSettings,
-            new YouTubeFeedReader(new HttpReader(new HttpClient()))),
+            new YouTubeFeedReader(new HttpReader(new HttpClient()), suppressHttpErrors)),
         new YouTubeVideoDownloader(
             logger,
             new MutexGuardFactory(),
             new ProcessRunner("UnarchivedStreamDownloader.Worker.exe")));
 
-    var results = await downloadService.DownloadAllAsync(searchSettings.ChannelIDs, suppressHttpErrors);
+    var results = await downloadService.DownloadAllAsync(searchSettings.ChannelIDs);
     if (results.IsNullOrEmpty())
     {
         return;

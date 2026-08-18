@@ -6,9 +6,9 @@ using UnarchivedStreamDownloader.Core.YouTube;
 
 public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource source) : IYouTubeVideoSource
 {
-    public async IAsyncEnumerable<YouTubeVideo> EnumerateVideos(string channelId, bool suppressHttpErrors)
+    public async IAsyncEnumerable<YouTubeVideo> EnumerateVideos(string channelId)
     {
-        await foreach (var video in source.EnumerateVideos(channelId, suppressHttpErrors))
+        await foreach (var video in source.EnumerateVideos(channelId))
         {
             if (this.IsMatch(video))
             {

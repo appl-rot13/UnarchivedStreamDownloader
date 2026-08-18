@@ -28,7 +28,7 @@ public class YouTubeVideoDownloadServiceTest
     public async Task DownloadAllAsync_NoVideos_ReturnsEmpty()
     {
         var service = CreateService([]);
-        (await service.DownloadAllAsync(["ChannelID"], false)).ShouldBeEmpty();
+        (await service.DownloadAllAsync(["ChannelID"])).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -39,23 +39,21 @@ public class YouTubeVideoDownloadServiceTest
         var channelIds = videos.Select(video => video.Channel.Id);
         var service = CreateService(videos.Zip(testCase.Results));
 
-        (await service.DownloadAllAsync(channelIds, false)).ShouldBe(testCase.Expected, ignoreOrder: true);
+        (await service.DownloadAllAsync(channelIds)).ShouldBe(testCase.Expected, ignoreOrder: true);
     }
 
     [TestMethod]
-    [DataRow(true)]
-    [DataRow(false)]
-    public async Task DownloadAllAsync_PassesArguments(bool suppressHttpErrors)
+    public async Task DownloadAllAsync_PassesArguments()
     {
         var videos = CreateYouTubeVideos();
         var channelIds = new[] { "ChannelID-1", " ChannelID-1 ", " ChannelID-2 " };
         var service = CreateService(out var searcher, out var downloader, videos.Select(video => (video, (bool?)true)));
 
-        await service.DownloadAllAsync(channelIds, suppressHttpErrors);
+        await service.DownloadAllAsync(channelIds);
 
-        searcher.Received(2).EnumerateVideos(Arg.Any<string>(), Arg.Any<bool>());
-        searcher.Received(1).EnumerateVideos("ChannelID-1", suppressHttpErrors);
-        searcher.Received(1).EnumerateVideos("ChannelID-2", suppressHttpErrors);
+        searcher.Received(2).EnumerateVideos(Arg.Any<string>());
+        searcher.Received(1).EnumerateVideos("ChannelID-1");
+        searcher.Received(1).EnumerateVideos("ChannelID-2");
 
         await downloader.Received(videos.Count).DownloadAsync(Arg.Any<YouTubeVideo>());
         foreach (var video in videos)
@@ -88,13 +86,13 @@ public class YouTubeVideoDownloadServiceTest
         source = Substitute.For<IYouTubeVideoSource>();
         downloader = Substitute.For<IYouTubeVideoDownloader>();
 
-        source.EnumerateVideos(Arg.Any<string>(), Arg.Any<bool>()).Returns(Enumerable.Empty<YouTubeVideo>().ToAsyncEnumerable());
+        source.EnumerateVideos(Arg.Any<string>()).Returns(Enumerable.Empty<YouTubeVideo>().ToAsyncEnumerable());
         foreach (var group in downloadResults.GroupBy(t => t.Video.Channel.Id))
         {
             var channelId = group.Key;
             var videos = group.Select(t => t.Video);
 
-            source.EnumerateVideos(channelId, Arg.Any<bool>()).Returns(videos.ToAsyncEnumerable());
+            source.EnumerateVideos(channelId).Returns(videos.ToAsyncEnumerable());
             foreach (var (video, result) in group)
             {
                 downloader.DownloadAsync(video).Returns(Task.FromResult(result));

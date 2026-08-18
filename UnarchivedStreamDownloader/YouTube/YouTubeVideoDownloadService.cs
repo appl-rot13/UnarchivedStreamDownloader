@@ -5,13 +5,13 @@ using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
 public class YouTubeVideoDownloadService(IYouTubeVideoSource source, IYouTubeVideoDownloader downloader)
 {
-    public async Task<bool[]> DownloadAllAsync(IEnumerable<string> channelIds, bool suppressHttpErrors)
+    public async Task<bool[]> DownloadAllAsync(IEnumerable<string> channelIds)
     {
-        var downloadTasks = await this.StartDownloadAsync(channelIds, suppressHttpErrors);
+        var downloadTasks = await this.StartDownloadAsync(channelIds);
         return (await downloadTasks.WhenAll()).OfType<bool>().ToArray();
     }
 
-    private async Task<IEnumerable<Task<bool?>>> StartDownloadAsync(IEnumerable<string> channelIds, bool suppressHttpErrors)
+    private async Task<IEnumerable<Task<bool?>>> StartDownloadAsync(IEnumerable<string> channelIds)
     {
         var downloadTasks = new ConcurrentBag<Task<bool?>>();
 
@@ -20,7 +20,7 @@ public class YouTubeVideoDownloadService(IYouTubeVideoSource source, IYouTubeVid
             .Distinct()
             .Select(async channelId =>
             {
-                await foreach (var video in source.EnumerateVideos(channelId, suppressHttpErrors))
+                await foreach (var video in source.EnumerateVideos(channelId))
                 {
                     downloadTasks.Add(downloader.DownloadAsync(video));
                 }

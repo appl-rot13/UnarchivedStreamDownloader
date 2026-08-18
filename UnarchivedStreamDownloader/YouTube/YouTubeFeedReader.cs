@@ -4,7 +4,7 @@ using System.Xml.Linq;
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.YouTube;
 
-public class YouTubeFeedReader(IHttpReader httpReader) : IYouTubeVideoSource
+public class YouTubeFeedReader(IHttpReader httpReader, bool suppressHttpErrors) : IYouTubeVideoSource
 {
     public static string GetFeedUrl(string channelId)
     {
@@ -12,7 +12,7 @@ public class YouTubeFeedReader(IHttpReader httpReader) : IYouTubeVideoSource
         return $"https://www.youtube.com/feeds/videos.xml?channel_id={channelId}";
     }
 
-    public async IAsyncEnumerable<YouTubeVideo> EnumerateVideos(string channelId, bool suppressHttpErrors)
+    public async IAsyncEnumerable<YouTubeVideo> EnumerateVideos(string channelId)
     {
         if (string.IsNullOrWhiteSpace(channelId))
         {

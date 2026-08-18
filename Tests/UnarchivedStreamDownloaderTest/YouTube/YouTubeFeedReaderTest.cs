@@ -41,28 +41,28 @@ public class YouTubeFeedReaderTest
     public async Task EnumerateVideos_InvalidChannelId_ReturnsEmpty(string channelId)
     {
         var feedReader = CreateFeedReader();
-        (await feedReader.EnumerateVideos(channelId, false).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos(channelId).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
     public async Task EnumerateVideos_SuppressHttpErrors_ReturnsEmpty()
     {
-        var feedReader = CreateFeedReader(CreateNotFoundResponse());
-        (await feedReader.EnumerateVideos("ChannelID", true).ToListAsync()).ShouldBeEmpty();
+        var feedReader = CreateFeedReader(CreateNotFoundResponse(), true);
+        (await feedReader.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
     public async Task EnumerateVideos_DoNotSuppressHttpErrors_ThrowsHttpRequestException()
     {
         var feedReader = CreateFeedReader(CreateNotFoundResponse());
-        Should.Throw<HttpRequestException>(async () => await feedReader.EnumerateVideos("ChannelID", false).ToListAsync());
+        Should.Throw<HttpRequestException>(async () => await feedReader.EnumerateVideos("ChannelID").ToListAsync());
     }
 
     [TestMethod]
     public async Task EnumerateVideos_InvalidXml_ThrowsXmlException()
     {
         var feedReader = CreateFeedReader(CreateInvalidResponse());
-        Should.Throw<XmlException>(async () => await feedReader.EnumerateVideos("ChannelID", false).ToListAsync());
+        Should.Throw<XmlException>(async () => await feedReader.EnumerateVideos("ChannelID").ToListAsync());
     }
 
     [TestMethod]
@@ -74,7 +74,7 @@ public class YouTubeFeedReaderTest
         var feed = CreateFeed(channelName, [("VideoID", "VideoTitle", "VideoDescription")]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -83,7 +83,7 @@ public class YouTubeFeedReaderTest
         var feed = CreateFeed("ChannelName", []);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos("ChannelID", false).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -108,7 +108,7 @@ public class YouTubeFeedReaderTest
             ]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await feedReader.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
         ]);
@@ -127,7 +127,7 @@ public class YouTubeFeedReaderTest
             ]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos(channel.Id, false).ToListAsync()).ShouldBe([
+        (await feedReader.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
@@ -182,7 +182,7 @@ public class YouTubeFeedReaderTest
         return new HttpResponseMessage(statusCode) { Content = new StringContent(content) };
     }
 
-    private static YouTubeFeedReader CreateFeedReader(HttpResponseMessage? response = null)
+    private static YouTubeFeedReader CreateFeedReader(HttpResponseMessage? response = null, bool suppressHttpErrors = false)
     {
         var httpReader = Substitute.For<IHttpReader>();
         if (response != null)
@@ -190,6 +190,6 @@ public class YouTubeFeedReaderTest
             httpReader.GetResponseAsync(Arg.Any<string>()).Returns(Task.FromResult(response));
         }
 
-        return new YouTubeFeedReader(httpReader);
+        return new YouTubeFeedReader(httpReader, suppressHttpErrors);
     }
 }
