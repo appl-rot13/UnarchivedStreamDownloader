@@ -95,7 +95,7 @@ public class YouTubeVideoDownloadServiceTest
             source.EnumerateVideos(channelId).Returns(videos.ToAsyncEnumerable());
             foreach (var (video, result) in group)
             {
-                downloader.DownloadAsync(video).Returns(Task.FromResult(result));
+                downloader.DownloadAsync(video).Returns(result);
             }
         }
 

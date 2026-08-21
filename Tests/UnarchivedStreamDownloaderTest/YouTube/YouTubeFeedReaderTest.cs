@@ -187,7 +187,7 @@ public class YouTubeFeedReaderTest
         var httpReader = Substitute.For<IHttpReader>();
         if (response != null)
         {
-            httpReader.GetResponseAsync(Arg.Any<string>()).Returns(Task.FromResult(response));
+            httpReader.GetResponseAsync(Arg.Any<string>()).Returns(response);
         }
 
         return new YouTubeFeedReader(httpReader, suppressHttpErrors);
