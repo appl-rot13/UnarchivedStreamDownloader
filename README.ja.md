@@ -71,9 +71,9 @@ yt-dlp を使用してその配信をダウンロードします。
   "ChannelIDs": [
     ""
   ],
-	"IgnoreVideoIDs": [
-		""
-	],
+  "IgnoreVideoIDs": [
+    ""
+  ],
   "Keywords": [
     "unarchive",
     "no archive"

@@ -71,9 +71,9 @@ Set up the `appsettings.json` file to match your environment.
   "ChannelIDs": [
     ""
   ],
-	"IgnoreVideoIDs": [
-		""
-	],
+  "IgnoreVideoIDs": [
+    ""
+  ],
   "Keywords": [
     "unarchive",
     "no archive"
