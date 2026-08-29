@@ -18,23 +18,23 @@
   <ItemGroup>
     <None Update="Tools\CreateScheduledTask.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
     </None>
     <None Update="Tools\DeleteScheduledTask.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
     </None>
     <None Update="Tools\UnarchivedStreamDownloader.vbs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
     </None>
     <None Update="Tools\UpdateDependencies.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
     </None>
     <None Update="Tools\UpdateFFmpeg.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>%(TargetDir)\%(Filename)%(Extension)</TargetPath>
+      <TargetPath>%(Filename)%(Extension)</TargetPath>
     </None>
   </ItemGroup>
 
