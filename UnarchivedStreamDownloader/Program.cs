@@ -19,7 +19,7 @@ try
         new YouTubeVideoDownloader(
             logger,
             new MutexGuardFactory(),
-            new ProcessRunner("UnarchivedStreamDownloader.Worker.exe")));
+            new ProcessRunner("UnarchivedStreamDownloader.Worker.exe", true)));
 
     var results = await downloadService.DownloadAllAsync(searchSettings.ChannelIDs);
     if (results.IsNullOrEmpty())

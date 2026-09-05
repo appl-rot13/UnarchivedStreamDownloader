@@ -21,7 +21,7 @@ public class YouTubeVideoDownloaderTest
         (await downloader.DownloadAsync(video)).ShouldBe(result);
 
         lockFactory.Received(1).TryCreate($"UnarchivedStreamDownloader.{videoId}");
-        processRunner.Received(1).Run(videoId);
+        processRunner.Received(1).Run(videoId, false);
 
         lockObject.ShouldNotBeNull();
         lockObject.Received(1).Dispose();
@@ -39,7 +39,7 @@ public class YouTubeVideoDownloaderTest
         (await downloader.DownloadAsync(video)).ShouldBeNull();
 
         lockFactory.Received(1).TryCreate($"UnarchivedStreamDownloader.{videoId}");
-        processRunner.DidNotReceive().Run(Arg.Any<string>());
+        processRunner.DidNotReceive().Run(Arg.Any<string>(), Arg.Any<bool>());
 
         lockObject.ShouldBeNull();
     }
@@ -49,7 +49,7 @@ public class YouTubeVideoDownloaderTest
     {
         var video = CreateYouTubeVideo("VideoID");
         var downloader = CreateDownloader(out _, out var lockObject, out var processRunner, true, true);
-        processRunner.Run(Arg.Any<string>()).Returns(_ => throw new InvalidOperationException());
+        processRunner.Run(Arg.Any<string>(), Arg.Any<bool>()).Returns(_ => throw new InvalidOperationException());
 
         (await downloader.DownloadAsync(video)).ShouldBe(false);
 
@@ -75,7 +75,7 @@ public class YouTubeVideoDownloaderTest
 
         lockObject = lockResult ? Substitute.For<IDisposable>() : null;
         lockFactory.TryCreate(Arg.Any<string>()).Returns(lockObject);
-        processRunner.Run(Arg.Any<string>()).Returns(processResult);
+        processRunner.Run(Arg.Any<string>(), Arg.Any<bool>()).Returns(new ProcessResult(processResult ? 0 : 1));
 
         return new YouTubeVideoDownloader(Substitute.For<ILogger>(), lockFactory, processRunner);
     }

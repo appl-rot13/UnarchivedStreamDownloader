@@ -2,5 +2,7 @@
 
 public interface IProcessRunner
 {
-    bool Run(string arguments);
+    ProcessResult Run(string arguments, bool redirectStandardOutput);
+
+    Task<ProcessResult> RunAsync(string arguments, bool redirectStandardOutput);
 }

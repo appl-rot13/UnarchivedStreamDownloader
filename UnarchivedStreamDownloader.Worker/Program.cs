@@ -17,8 +17,27 @@ try
     var videoId = args[0];
     Console.Title = videoId;
 
-    var downloader = new Downloader(logger, appSettings.DownloaderSettings, appSettings.BehaviorSettings);
-    if (await downloader.DownloadArchiveAsync(videoId))
+    var downloaderSettings = appSettings.DownloaderSettings;
+    var behaviorSettings = appSettings.BehaviorSettings;
+
+    var downloader = new VideoDownloader(
+        new FileSystem(),
+        new ProcessRunner(downloaderSettings.FilePath, false, logger),
+        () => new ConsoleCancelKeyPressSignal(),
+        downloaderSettings.Options);
+    var downloadService = new VideoDownloadService(
+        logger,
+        TimeProvider.System,
+        behaviorSettings,
+        downloader,
+        new YouTubeLiveStartWaiter(
+            logger,
+            TimeProvider.System,
+            behaviorSettings,
+            downloader,
+            new ConsoleSignalWaiter()));
+
+    if (await downloadService.DownloadArchiveAsync(videoId))
     {
         logger.WriteLine("The download has been completed.");
         appSettings.PauseOptionally();
