@@ -50,12 +50,19 @@ public class YouTubeLiveStartWaiterTest
 
     public static IEnumerable<WaitForStartAsyncTestCase> WaitForStartAsyncTestCases()
     {
-        static DateTimeOffset Parse(string value) => DateTimeOffset.Parse($"2026-08-28T{value}+09:00");
+        var timeZones = new[] { TimeZoneInfo.Utc, TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo") };
+        return timeZones.SelectMany(CreateWaitForStartAsyncTestCases);
+    }
+
+    public static IEnumerable<WaitForStartAsyncTestCase> CreateWaitForStartAsyncTestCases(TimeZoneInfo timeZone)
+    {
+        static DateTimeOffset Parse(string value) => DateTimeOffset.Parse($"2026-08-28T{value}Z");
 
         return
         [
             new WaitForStartAsyncTestCase(
                 Parse("11:57:00"),
+                timeZone,
                 TimeSpan.FromMinutes(1),
                 [
                     // 通常ケース(StartCheckBuffer有り): (is_upcoming, xxx) -> (is_upcoming, null) -> (is_live, xxx)
@@ -67,6 +74,7 @@ public class YouTubeLiveStartWaiterTest
                 true),
             new WaitForStartAsyncTestCase(
                 Parse("11:58:30"),
+                timeZone,
                 TimeSpan.FromMinutes(3),
                 [
                     // 現在時刻が配信開始チェック時刻(配信開始時刻 - StartCheckBuffer)を過ぎているケース
@@ -76,6 +84,7 @@ public class YouTubeLiveStartWaiterTest
                 true),
             new WaitForStartAsyncTestCase(
                 Parse("11:57:00"),
+                timeZone,
                 TimeSpan.Zero,
                 [
                     // 通常ケース(StartCheckBuffer無し): (is_upcoming, xxx) -> (is_upcoming, null) -> (is_live, xxx)
@@ -86,6 +95,7 @@ public class YouTubeLiveStartWaiterTest
                 true),
             new WaitForStartAsyncTestCase(
                 Parse("11:57:00"),
+                timeZone,
                 TimeSpan.Zero,
                 [
                     // 配信開始時刻より前に配信開始するケース: (is_upcoming, xxx) -> (is_live, xxx)
@@ -95,6 +105,7 @@ public class YouTubeLiveStartWaiterTest
                 true),
             new WaitForStartAsyncTestCase(
                 Parse("11:57:00"),
+                timeZone,
                 TimeSpan.Zero,
                 [
                     // 配信開始せずに非公開/削除されるケース: (is_upcoming, xxx) -> (null, null)
@@ -121,7 +132,9 @@ public class YouTubeLiveStartWaiterTest
             videoDetails,
             testCase.StartCheckBuffer,
             TimeSpan.FromSeconds(30));
+
         timeProvider.SetUtcNow(testCase.Now);
+        timeProvider.SetLocalTimeZone(testCase.TimeZone);
 
         using var semaphore = new SemaphoreSlim(0);
         signalWaiter.When(t => t.WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())).Do(_ => semaphore.Release());
@@ -205,6 +218,7 @@ public class YouTubeLiveStartWaiterTest
 
     public record WaitForStartAsyncTestCase(
         DateTimeOffset Now,
+        TimeZoneInfo TimeZone,
         TimeSpan StartCheckBuffer,
         ImmutableArray<(string VideoDetails, TimeSpan? WaitTime)> Steps,
         bool Expected)
@@ -212,6 +226,8 @@ public class YouTubeLiveStartWaiterTest
         protected virtual bool PrintMembers(StringBuilder builder)
         {
             builder.Append($"\n{nameof(Now)} = {Now}");
+            builder.Append(", ");
+            builder.Append($"\n{nameof(TimeZone)} = {TimeZone}");
             builder.Append(", ");
             builder.Append($"\n{nameof(StartCheckBuffer)} = {StartCheckBuffer}");
             builder.Append(", ");

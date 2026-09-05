@@ -41,11 +41,12 @@ public class YouTubeLiveStartWaiter(
                 return true;
             }
 
-            var scheduledStartTime = timeProvider.GetLocalNow().DateTime;
+            var now = timeProvider.GetUtcNow();
+            var scheduledStartTime = now;
             if (timestamp.HasValue)
             {
-                scheduledStartTime = DateTimeOffset.FromUnixTimeSeconds(timestamp.Value).LocalDateTime;
-                logger.WriteLine($"The video is scheduled to start at {scheduledStartTime}.");
+                scheduledStartTime = DateTimeOffset.FromUnixTimeSeconds(timestamp.Value);
+                logger.WriteLine($"The video is scheduled to start at {scheduledStartTime.LocalDateTime}.");
             }
 
             // Timeline:
@@ -54,15 +55,15 @@ public class YouTubeLiveStartWaiter(
             //  Now             attemptTime         scheduledStartTime
 
             var attemptTime = scheduledStartTime.Subtract(behavior.StartCheckBuffer);
-            var timeRemaining = (attemptTime - timeProvider.GetLocalNow().DateTime).TruncateToSeconds();
+            var timeRemaining = (attemptTime - now).TruncateToSeconds();
             if (timeRemaining <= TimeSpan.Zero)
             {
                 // 配信開始直前の場合
                 timeRemaining = behavior.StartCheckInterval;
-                attemptTime = timeProvider.GetLocalNow().DateTime.Add(timeRemaining);
+                attemptTime = now.Add(timeRemaining);
             }
 
-            logger.WriteLine($"Wait until {attemptTime} (Time remaining: {timeRemaining}) - Press Ctrl+C to try now.");
+            logger.WriteLine($"Wait until {attemptTime.LocalDateTime} (Time remaining: {timeRemaining}) - Press Ctrl+C to try now.");
             await signalWaiter.WaitForCancelKeyPressAsync(timeRemaining, timeProvider);
         }
     }
