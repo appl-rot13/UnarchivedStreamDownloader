@@ -2,9 +2,9 @@
 
 public class SearchSettings
 {
-    public required IReadOnlyCollection<string> ChannelIDs { get; init; }
+    public IReadOnlyCollection<string> ChannelIDs { get; init; } = [];
 
-    public required IReadOnlyCollection<string> IgnoreVideoIDs { get; init; }
+    public IReadOnlyCollection<string> IgnoreVideoIDs { get; init; } = [];
 
-    public required IReadOnlyCollection<string> Keywords { get; init; }
+    public IReadOnlyCollection<string> Keywords { get; init; } = [];
 }

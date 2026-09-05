@@ -25,6 +25,13 @@ public class YouTubeVideoDownloadServiceTest
     }
 
     [TestMethod]
+    public async Task DownloadAllAsync_NoChannels_ReturnsEmpty()
+    {
+        var service = CreateService([]);
+        (await service.DownloadAllAsync([])).ShouldBeEmpty();
+    }
+
+    [TestMethod]
     public async Task DownloadAllAsync_NoVideos_ReturnsEmpty()
     {
         var service = CreateService([]);

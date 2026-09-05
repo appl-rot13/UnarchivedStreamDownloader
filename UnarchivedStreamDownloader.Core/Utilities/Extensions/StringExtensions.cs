@@ -9,4 +9,9 @@ public static class StringExtensions
     {
         return keywords.Any(keyword => source.Contains(keyword, comparisonType));
     }
+
+    public static IEnumerable<string> ExcludeEmptyOrWhitespace(this IEnumerable<string> source)
+    {
+        return source.Where(value => !string.IsNullOrWhiteSpace(value));
+    }
 }

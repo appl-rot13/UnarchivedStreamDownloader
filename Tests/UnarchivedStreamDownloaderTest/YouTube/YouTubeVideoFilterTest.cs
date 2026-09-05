@@ -12,7 +12,7 @@ public class YouTubeVideoFilterTest
     [TestMethod]
     public async Task EnumerateVideos_NoVideos_ReturnsEmpty()
     {
-        var filter = CreateFilter([], [string.Empty]);
+        var filter = CreateFilter([], []);
         (await filter.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
     }
 
@@ -26,12 +26,12 @@ public class YouTubeVideoFilterTest
     }
 
     [TestMethod]
-    public async Task EnumerateVideos_KeywordsContainEmptyString_ReturnsAllVideos()
+    public async Task EnumerateVideos_KeywordsContainEmptyString_ReturnsEmpty()
     {
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, [string.Empty]);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe(videos);
+        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -126,7 +126,6 @@ public class YouTubeVideoFilterTest
     {
         var settings = new SearchSettings
         {
-            ChannelIDs = [],
             IgnoreVideoIDs = ignoreVideoIds ?? [],
             Keywords = keywords,
         };
