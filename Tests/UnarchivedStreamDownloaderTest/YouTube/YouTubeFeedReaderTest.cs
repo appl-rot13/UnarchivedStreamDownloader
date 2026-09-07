@@ -6,12 +6,15 @@ using System.Xml.Linq;
 using NSubstitute;
 using Shouldly;
 using UnarchivedStreamDownloader.Core.Infrastructure;
-using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
 
 [TestClass]
 public class YouTubeFeedReaderTest
 {
+    public TestContext TestContext { get; set; }
+
+    private CancellationToken CancellationToken => this.TestContext.CancellationToken;
+
     [TestMethod]
     [DataRow("ChannelID", "https://www.youtube.com/feeds/videos.xml?channel_id=ChannelID")]
     public void GetFeedUrl_ReturnsUrl(string channelId, string expected)
@@ -41,28 +44,28 @@ public class YouTubeFeedReaderTest
     public async Task EnumerateVideos_InvalidChannelId_ReturnsEmpty(string channelId)
     {
         var feedReader = CreateFeedReader();
-        (await feedReader.EnumerateVideos(channelId).ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos(channelId).ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
     public async Task EnumerateVideos_SuppressHttpErrors_ReturnsEmpty()
     {
         var feedReader = CreateFeedReader(CreateNotFoundResponse(), true);
-        (await feedReader.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID").ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
-    public async Task EnumerateVideos_DoNotSuppressHttpErrors_ThrowsHttpRequestException()
+    public void EnumerateVideos_DoNotSuppressHttpErrors_ThrowsHttpRequestException()
     {
         var feedReader = CreateFeedReader(CreateNotFoundResponse());
-        Should.Throw<HttpRequestException>(async () => await feedReader.EnumerateVideos("ChannelID").ToListAsync());
+        Should.Throw<HttpRequestException>(async () => await feedReader.EnumerateVideos("ChannelID").ToListAsync(this.CancellationToken));
     }
 
     [TestMethod]
-    public async Task EnumerateVideos_InvalidXml_ThrowsXmlException()
+    public void EnumerateVideos_InvalidXml_ThrowsXmlException()
     {
         var feedReader = CreateFeedReader(CreateInvalidResponse());
-        Should.Throw<XmlException>(async () => await feedReader.EnumerateVideos("ChannelID").ToListAsync());
+        Should.Throw<XmlException>(async () => await feedReader.EnumerateVideos("ChannelID").ToListAsync(this.CancellationToken));
     }
 
     [TestMethod]
@@ -74,7 +77,7 @@ public class YouTubeFeedReaderTest
         var feed = CreateFeed(channelName, [("VideoID", "VideoTitle", "VideoDescription")]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID").ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -83,7 +86,7 @@ public class YouTubeFeedReaderTest
         var feed = CreateFeed("ChannelName", []);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
+        (await feedReader.EnumerateVideos("ChannelID").ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -108,7 +111,7 @@ public class YouTubeFeedReaderTest
             ]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
+        (await feedReader.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
         ]);
@@ -127,7 +130,7 @@ public class YouTubeFeedReaderTest
             ]);
         var feedReader = CreateFeedReader(CreateSuccessResponse(feed));
 
-        (await feedReader.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
+        (await feedReader.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
@@ -137,18 +140,18 @@ public class YouTubeFeedReaderTest
     private static XElement CreateFeed(string? channelName, IEnumerable<(string? videoId, string? title, string? description)> entries)
     {
         XNamespace atom = "http://www.w3.org/2005/Atom";
-        XNamespace yt = "http://www.youtube.com/xml/schemas/2015";
+        XNamespace youtube = "http://www.youtube.com/xml/schemas/2015";
         XNamespace media = "http://search.yahoo.com/mrss/";
 
         return new XElement(
             atom + "feed",
-            new XAttribute(XNamespace.Xmlns + "yt", yt),
+            new XAttribute(XNamespace.Xmlns + "yt", youtube),
             new XAttribute(XNamespace.Xmlns + "media", media),
             channelName == null ? null : new XElement(atom + "title", channelName),
             entries.Select(
                 entry => new XElement(
                     atom + "entry",
-                    entry.videoId == null ? null : new XElement(yt + "videoId", entry.videoId),
+                    entry.videoId == null ? null : new XElement(youtube + "videoId", entry.videoId),
                     entry.title == null ? null : new XElement(atom + "title", entry.title),
                     new XElement(
                         media + "group",

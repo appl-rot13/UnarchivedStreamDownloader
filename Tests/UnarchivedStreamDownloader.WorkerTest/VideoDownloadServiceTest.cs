@@ -14,17 +14,19 @@ public class VideoDownloadServiceTest
 {
     public TestContext TestContext { get; set; }
 
+    private CancellationToken CancellationToken => this.TestContext.CancellationToken;
+
     [TestMethod]
     public async Task DownloadArchiveAsync_ArchiveFileExists_ReturnsTrue()
     {
         var videoId = "VideoID";
-        var service = CreateService(out var startWaiter, out var downloader);
+        var service = CreateService(out var videoWaiter, out var downloader);
         downloader.ArchiveFileExists(Arg.Any<string>()).Returns(true);
 
         (await service.DownloadArchiveAsync(videoId)).ShouldBeTrue();
 
         downloader.Received(1).ArchiveFileExists(videoId);
-        await startWaiter.DidNotReceive().WaitForStartAsync(Arg.Any<string>());
+        await videoWaiter.DidNotReceive().WaitAsync(Arg.Any<string>());
         await downloader.DidNotReceive().DownloadAsync(Arg.Any<string>());
     }
 
@@ -34,13 +36,13 @@ public class VideoDownloadServiceTest
     public async Task DownloadArchiveAsync_NoStartedOrNoAttempts_ReturnsFalse(int downloadAttempts, bool waitResult)
     {
         var videoId = "VideoID";
-        var service = CreateService(out var startWaiter, out var downloader, downloadAttempts, waitResult);
+        var service = CreateService(out var videoWaiter, out var downloader, downloadAttempts, waitResult);
         downloader.ArchiveFileExists(Arg.Any<string>()).Returns(false);
 
         (await service.DownloadArchiveAsync(videoId)).ShouldBeFalse();
 
         downloader.Received(1).ArchiveFileExists(videoId);
-        await startWaiter.Received(1).WaitForStartAsync(videoId);
+        await videoWaiter.Received(1).WaitAsync(videoId);
         await downloader.DidNotReceive().DownloadAsync(Arg.Any<string>());
     }
 
@@ -48,13 +50,13 @@ public class VideoDownloadServiceTest
     public async Task DownloadArchiveAsync_DownloadFails_ReturnsFalse()
     {
         var videoId = "VideoID";
-        var service = CreateService(out var startWaiter, out var downloader, downloadResult: false);
+        var service = CreateService(out var videoWaiter, out var downloader, downloadResult: false);
         downloader.ArchiveFileExists(Arg.Any<string>()).Returns(false);
 
         (await service.DownloadArchiveAsync(videoId)).ShouldBeFalse();
 
         downloader.Received(1).ArchiveFileExists(videoId);
-        await startWaiter.Received(1).WaitForStartAsync(videoId);
+        await videoWaiter.Received(1).WaitAsync(videoId);
         await downloader.Received(1).DownloadAsync(Arg.Any<string>());
     }
 
@@ -75,13 +77,13 @@ public class VideoDownloadServiceTest
     public async Task DownloadArchiveAsync_RetriesUntilArchiveFileExists(DownloadArchiveAsyncTestCase testCase)
     {
         var videoId = "VideoID";
-        var service = CreateService(out var startWaiter, out var downloader, testCase.DownloadAttempts);
+        var service = CreateService(out var videoWaiter, out var downloader, testCase.DownloadAttempts);
         downloader.ArchiveFileExists(Arg.Any<string>()).Returns(testCase.ArchiveFileExistsResults);
 
         (await service.DownloadArchiveAsync(videoId)).ShouldBe(testCase.ExpectedResult);
 
         downloader.Received(testCase.ExpectedDownloadCount + 1).ArchiveFileExists(videoId);
-        await startWaiter.Received(1).WaitForStartAsync(videoId);
+        await videoWaiter.Received(1).WaitAsync(videoId);
         await downloader.Received(testCase.ExpectedDownloadCount).DownloadAsync(Arg.Any<string>());
     }
 
@@ -111,10 +113,9 @@ public class VideoDownloadServiceTest
 
         var task = service.DownloadWithRetryAsync(videoId);
 
-        var cancellationToken = TestContext.CancellationToken;
         for (var i = 1; i < testCase.ExpectedDownloadCount; i++)
         {
-            (await semaphore.WaitAsync(TimeSpan.FromSeconds(1), cancellationToken)).ShouldBeTrue();
+            (await semaphore.WaitAsync(TimeSpan.FromSeconds(1), this.CancellationToken)).ShouldBeTrue();
 
             await downloader.Received(i).DownloadAsync(videoId);
             timeProvider.Advance(TimeSpan.FromSeconds(2));
@@ -157,18 +158,18 @@ public class VideoDownloadServiceTest
             timeProvider = new FakeTimeProvider(),
             CreateSettings(0, errorRetryAttempts, errorRetryIntervalSeconds),
             downloader = Substitute.For<IVideoDownloader>(),
-            Substitute.For<IYouTubeLiveStartWaiter>());
+            Substitute.For<IVideoWaiter>());
     }
 
     private static VideoDownloadService CreateService(
-        out IYouTubeLiveStartWaiter startWaiter,
+        out IVideoWaiter videoWaiter,
         out IVideoDownloader downloader,
         int downloadAttempts = 1,
         bool waitResult = true,
         bool downloadResult = true)
     {
-        startWaiter = Substitute.For<IYouTubeLiveStartWaiter>();
-        startWaiter.WaitForStartAsync(Arg.Any<string>()).Returns(waitResult);
+        videoWaiter = Substitute.For<IVideoWaiter>();
+        videoWaiter.WaitAsync(Arg.Any<string>()).Returns(waitResult);
 
         downloader = Substitute.For<IVideoDownloader>();
         downloader.DownloadAsync(Arg.Any<string>()).Returns(downloadResult);
@@ -178,7 +179,7 @@ public class VideoDownloadServiceTest
             new FakeTimeProvider(),
             CreateSettings(downloadAttempts, 1, 0),
             downloader,
-            startWaiter);
+            videoWaiter);
     }
 
     public record DownloadArchiveAsyncTestCase(

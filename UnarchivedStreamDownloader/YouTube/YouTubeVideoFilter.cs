@@ -2,7 +2,6 @@
 
 using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
-using UnarchivedStreamDownloader.Core.YouTube;
 
 public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource source) : IYouTubeVideoSource
 {
@@ -22,24 +21,24 @@ public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource sou
 
     private bool IsMatch(YouTubeVideo video)
     {
-        if (ignoreVideoIDs.Contains(video.Id))
+        if (this.ignoreVideoIDs.Contains(video.Id))
         {
             return false;
         }
 
-        string[] sources = [video.Title, video.Description];
-        return sources.Any(source => source.ContainsAny(keywords, StringComparison.OrdinalIgnoreCase));
+        string[] texts = [video.Title, video.Description];
+        return texts.Any(text => text.ContainsAny(this.keywords, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static IReadOnlyCollection<string> Normalize(IEnumerable<string> source, bool trim)
+    private static IReadOnlyCollection<string> Normalize(IEnumerable<string> values, bool trim)
     {
-        source = source.ExcludeEmptyOrWhitespace();
+        values = values.ExcludeEmptyOrWhitespace();
         if (trim)
         {
-            source = source.Select(value => value.Trim());
+            values = values.Select(value => value.Trim());
         }
 
-        source = source.Distinct();
-        return [.. source];
+        values = values.Distinct();
+        return [.. values];
     }
 }

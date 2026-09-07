@@ -10,11 +10,7 @@ public static class Configuration
             .AddJsonFile(filePath)
             .Build()
             .Get<TValue>();
-        if (value == null)
-        {
-            throw new InvalidOperationException($"'{filePath}' is not configured.");
-        }
 
-        return value;
+        return value ?? throw new InvalidOperationException($"'{filePath}' is not configured.");
     }
 }

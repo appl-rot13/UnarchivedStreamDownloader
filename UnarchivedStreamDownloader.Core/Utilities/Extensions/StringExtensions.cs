@@ -3,11 +3,11 @@
 public static class StringExtensions
 {
     public static bool ContainsAny(
-        this string source,
-        IReadOnlyCollection<string> keywords,
+        this string text,
+        IEnumerable<string> keywords,
         StringComparison comparisonType)
     {
-        return keywords.Any(keyword => source.Contains(keyword, comparisonType));
+        return keywords.Any(keyword => text.Contains(keyword, comparisonType));
     }
 
     public static IEnumerable<string> ExcludeEmptyOrWhitespace(this IEnumerable<string> source)

@@ -3,12 +3,15 @@
 using System.Text.RegularExpressions;
 using UnarchivedStreamDownloader.Core.Infrastructure;
 
-public class VideoDownloader(
+public partial class VideoDownloader(
     IFileSystem fileSystem,
     IProcessRunner processRunner,
     Func<IAsyncSignal> createCancelSignal,
     IReadOnlyCollection<string> options) : IVideoDownloader
 {
+    [GeneratedRegex(@"--wait-for-video \S+ ")]
+    private static partial Regex InvalidOptions { get; }
+
     public bool ArchiveFileExists(string videoId)
     {
         return fileSystem.EnumerateFiles($"*[{videoId}].*", SearchOption.TopDirectoryOnly)
@@ -30,7 +33,7 @@ public class VideoDownloader(
     public async Task<bool> DownloadAsync(string videoId)
     {
         var arguments = CreateArguments(videoId, options);
-        arguments = ExcludeWaitForVideoOption(arguments);
+        arguments = ExcludeInvalidOptions(arguments);
 
         var result = await this.RunAsync(arguments, false);
         return result.IsSuccess;
@@ -49,8 +52,8 @@ public class VideoDownloader(
         return string.Join(' ', options.Select(option => option.Trim())) + $" -- {videoId}";
     }
 
-    private static string ExcludeWaitForVideoOption(string arguments)
+    private static string ExcludeInvalidOptions(string arguments)
     {
-        return Regex.Replace(arguments, @"--wait-for-video \S+ ", string.Empty).Trim();
+        return InvalidOptions.Replace(arguments, string.Empty).Trim();
     }
 }

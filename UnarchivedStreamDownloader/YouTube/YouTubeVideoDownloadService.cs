@@ -8,7 +8,7 @@ public class YouTubeVideoDownloadService(IYouTubeVideoSource source, IYouTubeVid
     public async Task<bool[]> DownloadAllAsync(IEnumerable<string> channelIds)
     {
         var downloadTasks = await this.StartDownloadAsync(channelIds);
-        return (await downloadTasks.WhenAll()).OfType<bool>().ToArray();
+        return [.. (await downloadTasks.WhenAll()).OfType<bool>()];
     }
 
     private async Task<IEnumerable<Task<bool?>>> StartDownloadAsync(IEnumerable<string> channelIds)

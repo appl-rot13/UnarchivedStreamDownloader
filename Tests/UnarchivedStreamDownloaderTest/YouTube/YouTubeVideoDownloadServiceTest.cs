@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Text;
 using NSubstitute;
 using Shouldly;
-using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
 
 [TestClass]

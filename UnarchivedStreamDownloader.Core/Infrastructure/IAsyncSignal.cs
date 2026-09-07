@@ -1,4 +1,4 @@
-﻿namespace UnarchivedStreamDownloader.Worker;
+﻿namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
 public interface IAsyncSignal : IDisposable
 {

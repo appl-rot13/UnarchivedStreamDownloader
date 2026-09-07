@@ -8,7 +8,7 @@ public class ProcessRunner(string filePath, bool useShellExecute, ILogger? logge
     {
         logger?.WriteLine($"Exec: {filePath} {arguments}");
 
-        using var process = StartProcess(arguments, redirectStandardOutput);
+        using var process = this.StartProcess(arguments, redirectStandardOutput);
         var standardOutput = redirectStandardOutput
             ? process.StandardOutput.ReadToEnd()
             : string.Empty;
@@ -23,7 +23,7 @@ public class ProcessRunner(string filePath, bool useShellExecute, ILogger? logge
     {
         logger?.WriteLine($"Exec: {filePath} {arguments}");
 
-        using var process = StartProcess(arguments, redirectStandardOutput);
+        using var process = this.StartProcess(arguments, redirectStandardOutput);
         var standardOutput = redirectStandardOutput
             ? await process.StandardOutput.ReadToEndAsync()
             : string.Empty;

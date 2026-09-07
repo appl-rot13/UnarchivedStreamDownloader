@@ -5,14 +5,14 @@ using UnarchivedStreamDownloader.Core.Configuration.Models;
 using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
-public class YouTubeLiveStartWaiter(
+public class YouTubeVideoWaiter(
     ILogger logger,
     TimeProvider timeProvider,
     BehaviorSettings behavior,
     IVideoDownloader downloader,
-    IConsoleSignalWaiter signalWaiter) : IYouTubeLiveStartWaiter
+    IConsoleSignalWaiter signalWaiter) : IVideoWaiter
 {
-    public async Task<bool> WaitForStartAsync(string videoId)
+    public async Task<bool> WaitAsync(string videoId)
     {
         const string statusKey = "live_status";
         const string timestampKey = "release_timestamp";
@@ -72,11 +72,7 @@ public class YouTubeLiveStartWaiter(
     {
         var jsonString = await downloader.GetVideoDetailsAsync(videoId);
         var jsonObject = JsonNode.Parse(jsonString)?.AsObject();
-        if (jsonObject == null)
-        {
-            throw new InvalidOperationException($"Unexpected output: {jsonString}");
-        }
 
-        return jsonObject;
+        return jsonObject ?? throw new InvalidOperationException($"Unexpected output: {jsonString}");
     }
 }

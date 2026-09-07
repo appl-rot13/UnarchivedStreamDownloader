@@ -1,5 +1,7 @@
 ﻿namespace UnarchivedStreamDownloader.Worker;
 
+using UnarchivedStreamDownloader.Core.Infrastructure;
+
 public class ConsoleSignalWaiter : IConsoleSignalWaiter
 {
     public async Task WaitForCancelKeyPressAsync(TimeSpan timeout, TimeProvider timeProvider)

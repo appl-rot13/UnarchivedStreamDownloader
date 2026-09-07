@@ -30,7 +30,7 @@ try
         TimeProvider.System,
         behaviorSettings,
         downloader,
-        new YouTubeLiveStartWaiter(
+        new YouTubeVideoWaiter(
             logger,
             TimeProvider.System,
             behaviorSettings,

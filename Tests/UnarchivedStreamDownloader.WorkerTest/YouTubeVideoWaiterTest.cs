@@ -12,55 +12,57 @@ using UnarchivedStreamDownloader.Core.Infrastructure;
 using UnarchivedStreamDownloader.Worker;
 
 [TestClass]
-public class YouTubeLiveStartWaiterTest
+public class YouTubeVideoWaiterTest
 {
     public TestContext TestContext { get; set; }
 
+    private CancellationToken CancellationToken => this.TestContext.CancellationToken;
+
     [TestMethod]
-    public async Task WaitForStartAsync_NullJson_ThrowsInvalidOperationException()
+    public async Task WaitAsync_NullJson_ThrowsInvalidOperationException()
     {
         var waiter = CreateWaiter("null");
-        Should.Throw<InvalidOperationException>(async () => await waiter.WaitForStartAsync("VideoID"));
+        await Should.ThrowAsync<InvalidOperationException>(() => waiter.WaitAsync("VideoID"));
     }
 
     [TestMethod]
     [DataRow(@"{}")]
     [DataRow(@"{""live_status"":""is_live""}")]
     [DataRow(@"{""release_timestamp"":0}")]
-    public async Task WaitForStartAsync_MissingRequiredJson_ThrowsInvalidOperationException(string videoDetails)
+    public async Task WaitAsync_MissingRequiredJson_ThrowsInvalidOperationException(string videoDetails)
     {
         var waiter = CreateWaiter(videoDetails);
-        Should.Throw<InvalidOperationException>(async () => await waiter.WaitForStartAsync("VideoID"));
+        await Should.ThrowAsync<InvalidOperationException>(() => waiter.WaitAsync("VideoID"));
     }
 
     [TestMethod]
     [DataRow(null, null, false)]
     [DataRow("is_live", null, true)]
-    public async Task WaitForStartAsync_EarlyReturnsResult(string? status, DateTimeOffset? timestamp, bool expected)
+    public async Task WaitAsync_EarlyReturnsResult(string? status, DateTimeOffset? timestamp, bool expected)
     {
         var videoId = "VideoID";
         var videoDetails = CreateVideoDetails(status, timestamp);
         var waiter = CreateWaiter(out var downloader, out var signalWaiter, videoDetails);
 
-        (await waiter.WaitForStartAsync(videoId)).ShouldBe(expected);
+        (await waiter.WaitAsync(videoId)).ShouldBe(expected);
 
         await downloader.Received(1).GetVideoDetailsAsync(videoId);
         await signalWaiter.DidNotReceive().WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
     }
 
-    public static IEnumerable<WaitForStartAsyncTestCase> WaitForStartAsyncTestCases()
+    public static IEnumerable<WaitAsyncTestCase> WaitAsyncTestCases()
     {
         var timeZones = new[] { TimeZoneInfo.Utc, TimeZoneInfo.FindSystemTimeZoneById("Asia/Tokyo") };
-        return timeZones.SelectMany(CreateWaitForStartAsyncTestCases);
+        return timeZones.SelectMany(CreateWaitAsyncTestCases);
     }
 
-    public static IEnumerable<WaitForStartAsyncTestCase> CreateWaitForStartAsyncTestCases(TimeZoneInfo timeZone)
+    public static IEnumerable<WaitAsyncTestCase> CreateWaitAsyncTestCases(TimeZoneInfo timeZone)
     {
         static DateTimeOffset Parse(string value) => DateTimeOffset.Parse($"2026-08-28T{value}Z");
 
         return
         [
-            new WaitForStartAsyncTestCase(
+            new WaitAsyncTestCase(
                 Parse("11:57:00"),
                 timeZone,
                 TimeSpan.FromMinutes(1),
@@ -72,7 +74,7 @@ public class YouTubeLiveStartWaiterTest
                     (CreateVideoDetails("is_live",     Parse("12:00:00")), null),
                 ],
                 true),
-            new WaitForStartAsyncTestCase(
+            new WaitAsyncTestCase(
                 Parse("11:58:30"),
                 timeZone,
                 TimeSpan.FromMinutes(3),
@@ -82,7 +84,7 @@ public class YouTubeLiveStartWaiterTest
                     (CreateVideoDetails("is_live",     Parse("11:59:00")), null),
                 ],
                 true),
-            new WaitForStartAsyncTestCase(
+            new WaitAsyncTestCase(
                 Parse("11:57:00"),
                 timeZone,
                 TimeSpan.Zero,
@@ -93,7 +95,7 @@ public class YouTubeLiveStartWaiterTest
                     (CreateVideoDetails("is_live",     Parse("12:00:30")), null),
                 ],
                 true),
-            new WaitForStartAsyncTestCase(
+            new WaitAsyncTestCase(
                 Parse("11:57:00"),
                 timeZone,
                 TimeSpan.Zero,
@@ -103,7 +105,7 @@ public class YouTubeLiveStartWaiterTest
                     (CreateVideoDetails("is_live",     Parse("12:00:00")), null),
                 ],
                 true),
-            new WaitForStartAsyncTestCase(
+            new WaitAsyncTestCase(
                 Parse("11:57:00"),
                 timeZone,
                 TimeSpan.Zero,
@@ -117,8 +119,8 @@ public class YouTubeLiveStartWaiterTest
     }
 
     [TestMethod]
-    [DynamicData(nameof(WaitForStartAsyncTestCases))]
-    public async Task WaitForStartAsync_ReturnsResult(WaitForStartAsyncTestCase testCase)
+    [DynamicData(nameof(WaitAsyncTestCases))]
+    public async Task WaitAsync_ReturnsResult(WaitAsyncTestCase testCase)
     {
         var videoId = "VideoID";
         var videoDetails = testCase.Steps.Select(t => t.VideoDetails).ToArray();
@@ -139,12 +141,11 @@ public class YouTubeLiveStartWaiterTest
         using var semaphore = new SemaphoreSlim(0);
         signalWaiter.When(t => t.WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())).Do(_ => semaphore.Release());
 
-        var task = waiter.WaitForStartAsync(videoId);
+        var task = waiter.WaitAsync(videoId);
 
-        var cancellationToken = TestContext.CancellationToken;
         foreach (var waitTime in waitTimes)
         {
-            (await semaphore.WaitAsync(TimeSpan.FromSeconds(1), cancellationToken)).ShouldBeTrue();
+            (await semaphore.WaitAsync(TimeSpan.FromSeconds(1), this.CancellationToken)).ShouldBeTrue();
 
             await signalWaiter.Received(++callCounts[waitTime]).WaitForCancelKeyPressAsync(waitTime, Arg.Any<TimeProvider>());
             timeProvider.Advance(waitTime);
@@ -180,12 +181,12 @@ public class YouTubeLiveStartWaiterTest
         };
     }
 
-    private static YouTubeLiveStartWaiter CreateWaiter(string videoDetails)
+    private static YouTubeVideoWaiter CreateWaiter(string videoDetails)
     {
         return CreateWaiter(out _, out _, videoDetails);
     }
 
-    private static YouTubeLiveStartWaiter CreateWaiter(
+    private static YouTubeVideoWaiter CreateWaiter(
         out IVideoDownloader downloader,
         out IConsoleSignalWaiter signalWaiter,
         string videoDetails)
@@ -193,7 +194,7 @@ public class YouTubeLiveStartWaiterTest
         return CreateWaiter(out _, out downloader, out signalWaiter, [videoDetails], TimeSpan.Zero, TimeSpan.Zero);
     }
 
-    private static YouTubeLiveStartWaiter CreateWaiter(
+    private static YouTubeVideoWaiter CreateWaiter(
         out FakeTimeProvider timeProvider,
         out IVideoDownloader downloader,
         out IConsoleSignalWaiter signalWaiter,
@@ -208,7 +209,7 @@ public class YouTubeLiveStartWaiterTest
         signalWaiter.WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())
             .Returns(x => Task.Delay((TimeSpan)x[0], (TimeProvider)x[1]));
 
-        return new YouTubeLiveStartWaiter(
+        return new YouTubeVideoWaiter(
             Substitute.For<ILogger>(),
             timeProvider = new FakeTimeProvider(),
             CreateSettings(startCheckBuffer, startCheckInterval),
@@ -216,7 +217,7 @@ public class YouTubeLiveStartWaiterTest
             signalWaiter);
     }
 
-    public record WaitForStartAsyncTestCase(
+    public record WaitAsyncTestCase(
         DateTimeOffset Now,
         TimeZoneInfo TimeZone,
         TimeSpan StartCheckBuffer,

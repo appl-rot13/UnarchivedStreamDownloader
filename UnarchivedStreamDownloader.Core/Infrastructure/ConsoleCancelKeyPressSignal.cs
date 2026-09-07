@@ -1,4 +1,4 @@
-﻿namespace UnarchivedStreamDownloader.Worker;
+﻿namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
 public sealed class ConsoleCancelKeyPressSignal : IAsyncSignal
 {
@@ -27,6 +27,6 @@ public sealed class ConsoleCancelKeyPressSignal : IAsyncSignal
     private void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
     {
         e.Cancel = true;
-        tcs.TrySetResult();
+        this.tcs.TrySetResult();
     }
 }

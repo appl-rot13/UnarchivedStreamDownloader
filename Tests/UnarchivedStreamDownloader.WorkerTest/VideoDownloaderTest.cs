@@ -52,7 +52,7 @@ public class VideoDownloaderTest
     public async Task GetVideoDetailsAsync_SignalIsSet_ThrowsOperationCanceledException()
     {
         var downloader = CreateDownloader(out _, true, true, string.Empty, []);
-        Should.Throw<OperationCanceledException>(async () => await downloader.GetVideoDetailsAsync("Video-ID"));
+        await Should.ThrowAsync<OperationCanceledException>(() => downloader.GetVideoDetailsAsync("Video-ID"));
     }
 
     [TestMethod]
@@ -74,7 +74,7 @@ public class VideoDownloaderTest
     public async Task DownloadAsync_SignalIsSet_ThrowsOperationCanceledException()
     {
         var downloader = CreateDownloader(out _, true, true, string.Empty, []);
-        Should.Throw<OperationCanceledException>(async () => await downloader.DownloadAsync("Video-ID"));
+        await Should.ThrowAsync<OperationCanceledException>(() => downloader.DownloadAsync("Video-ID"));
     }
 
     private static VideoDownloader CreateDownloader(IEnumerable<string> files)

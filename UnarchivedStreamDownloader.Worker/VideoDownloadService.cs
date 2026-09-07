@@ -8,7 +8,7 @@ public class VideoDownloadService(
     TimeProvider timeProvider,
     BehaviorSettings behavior,
     IVideoDownloader downloader,
-    IYouTubeLiveStartWaiter startWaiter)
+    IVideoWaiter videoWaiter)
 {
     public Task<bool> DownloadArchiveAsync(string videoId)
     {
@@ -23,7 +23,7 @@ public class VideoDownloadService(
             return true;
         }
 
-        if (!await startWaiter.WaitForStartAsync(videoId))
+        if (!await videoWaiter.WaitAsync(videoId))
         {
             // 配信が削除された場合
             return false;

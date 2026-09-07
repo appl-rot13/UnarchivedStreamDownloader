@@ -3,17 +3,20 @@
 using NSubstitute;
 using Shouldly;
 using UnarchivedStreamDownloader.Core.Configuration.Models;
-using UnarchivedStreamDownloader.Core.YouTube;
 using UnarchivedStreamDownloader.YouTube;
 
 [TestClass]
 public class YouTubeVideoFilterTest
 {
+    public TestContext TestContext { get; set; }
+
+    private CancellationToken CancellationToken => this.TestContext.CancellationToken;
+
     [TestMethod]
     public async Task EnumerateVideos_NoVideos_ReturnsEmpty()
     {
         var filter = CreateFilter([], []);
-        (await filter.EnumerateVideos("ChannelID").ToListAsync()).ShouldBeEmpty();
+        (await filter.EnumerateVideos("ChannelID").ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -22,7 +25,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, []);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBeEmpty();
+        (await filter.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -31,7 +34,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, [string.Empty]);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBeEmpty();
+        (await filter.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBeEmpty();
     }
 
     [TestMethod]
@@ -40,7 +43,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Video"], ["VideoID-2"]);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
         ]);
@@ -52,7 +55,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Video"]);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
             new YouTubeVideo(channel, "VideoID-3", "VideoTitle-3", "VideoDescription-3"),
@@ -69,7 +72,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, [keyword]);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBe([
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
         ]);
     }
@@ -80,7 +83,7 @@ public class YouTubeVideoFilterTest
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Title-1", "Description-2"]);
 
-        (await filter.EnumerateVideos(channel.Id).ToListAsync()).ShouldBe([
+        (await filter.EnumerateVideos(channel.Id).ToListAsync(this.CancellationToken)).ShouldBe([
             new YouTubeVideo(channel, "VideoID-1", "VideoTitle-1", "VideoDescription-1"),
             new YouTubeVideo(channel, "VideoID-2", "VideoTitle-2", "VideoDescription-2"),
         ]);
@@ -92,7 +95,7 @@ public class YouTubeVideoFilterTest
     public async Task EnumerateVideos_PassesArguments(string channelId)
     {
         var filter = CreateFilter(out var reader, [], []);
-        await filter.EnumerateVideos(channelId).ToListAsync();
+        await filter.EnumerateVideos(channelId).ToListAsync(this.CancellationToken);
 
         reader.Received(1).EnumerateVideos(channelId);
     }

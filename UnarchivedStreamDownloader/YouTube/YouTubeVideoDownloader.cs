@@ -1,7 +1,6 @@
 ﻿namespace UnarchivedStreamDownloader.YouTube;
 
 using UnarchivedStreamDownloader.Core.Infrastructure;
-using UnarchivedStreamDownloader.Core.YouTube;
 
 public class YouTubeVideoDownloader(ILogger logger, ILockFactory lockFactory, IProcessRunner processRunner) : IYouTubeVideoDownloader
 {
