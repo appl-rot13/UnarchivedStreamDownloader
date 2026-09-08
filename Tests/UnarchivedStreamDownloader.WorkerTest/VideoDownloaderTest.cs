@@ -49,7 +49,7 @@ public class VideoDownloaderTest
     }
 
     [TestMethod]
-    public async Task GetVideoDetailsAsync_SignalIsSet_ThrowsOperationCanceledException()
+    public async Task GetVideoDetailsAsync_SignalIsTriggered_ThrowsOperationCanceledException()
     {
         var downloader = CreateDownloader(out _, true, true, string.Empty, []);
         await Should.ThrowAsync<OperationCanceledException>(() => downloader.GetVideoDetailsAsync("Video-ID"));
@@ -71,7 +71,7 @@ public class VideoDownloaderTest
     }
 
     [TestMethod]
-    public async Task DownloadAsync_SignalIsSet_ThrowsOperationCanceledException()
+    public async Task DownloadAsync_SignalIsTriggered_ThrowsOperationCanceledException()
     {
         var downloader = CreateDownloader(out _, true, true, string.Empty, []);
         await Should.ThrowAsync<OperationCanceledException>(() => downloader.DownloadAsync("Video-ID"));
@@ -91,7 +91,7 @@ public class VideoDownloaderTest
 
     private static VideoDownloader CreateDownloader(
         out IProcessRunner processRunner,
-        bool isSet,
+        bool isTriggered,
         bool processResult,
         string processOutput,
         IReadOnlyCollection<string> options)
@@ -100,7 +100,7 @@ public class VideoDownloaderTest
         processRunner.RunAsync(Arg.Any<string>(), Arg.Any<bool>()).Returns(new ProcessResult(processResult ? 0 : 1, processOutput));
 
         var signal = Substitute.For<IAsyncSignal>();
-        signal.IsSet.Returns(isSet);
+        signal.IsTriggered.Returns(isTriggered);
 
         return new VideoDownloader(
             Substitute.For<IFileSystem>(),

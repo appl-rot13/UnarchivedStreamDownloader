@@ -44,7 +44,7 @@ public partial class VideoDownloader(
         using var cancelSignal = createCancelSignal();
         var result = await processRunner.RunAsync(arguments, redirectStandardOutput);
 
-        return cancelSignal.IsSet ? throw new OperationCanceledException() : result;
+        return cancelSignal.IsTriggered ? throw new OperationCanceledException() : result;
     }
 
     private static string CreateArguments(string videoId, params IEnumerable<string> options)

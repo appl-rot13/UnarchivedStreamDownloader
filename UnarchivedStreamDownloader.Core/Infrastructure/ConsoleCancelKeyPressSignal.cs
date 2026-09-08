@@ -1,25 +1,13 @@
 ﻿namespace UnarchivedStreamDownloader.Core.Infrastructure;
 
-public sealed class ConsoleCancelKeyPressSignal : IAsyncSignal
+public class ConsoleCancelKeyPressSignal : EventSignal
 {
-    private readonly TaskCompletionSource tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-    public ConsoleCancelKeyPressSignal()
+    protected override void Subscribe()
     {
         Console.CancelKeyPress += this.OnCancelKeyPress;
     }
 
-    public bool IsSet
-    {
-        get => this.tcs.Task.IsCompleted;
-    }
-
-    public Task WaitAsync(TimeSpan timeout, TimeProvider timeProvider)
-    {
-        return this.tcs.Task.WaitAsync(timeout, timeProvider);
-    }
-
-    public void Dispose()
+    protected override void Unsubscribe()
     {
         Console.CancelKeyPress -= this.OnCancelKeyPress;
     }
@@ -27,6 +15,6 @@ public sealed class ConsoleCancelKeyPressSignal : IAsyncSignal
     private void OnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
     {
         e.Cancel = true;
-        this.tcs.TrySetResult();
+        this.Trigger();
     }
 }

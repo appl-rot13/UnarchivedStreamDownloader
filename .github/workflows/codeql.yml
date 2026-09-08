@@ -13,7 +13,10 @@ on:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ubuntu-latest
+
+    # If the target platform is set to Windows, the build must be run on Windows;
+    # otherwise, the build will fail.
+    runs-on: windows-latest
     permissions:
       security-events: write
       actions: read

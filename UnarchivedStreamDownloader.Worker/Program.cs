@@ -35,7 +35,7 @@ try
             TimeProvider.System,
             behaviorSettings,
             downloader,
-            new ConsoleSignalWaiter()));
+            new RetrySignalWaiter()));
 
     if (await downloadService.DownloadArchiveAsync(videoId))
     {

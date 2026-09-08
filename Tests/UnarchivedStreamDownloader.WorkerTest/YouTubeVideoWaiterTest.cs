@@ -47,7 +47,7 @@ public class YouTubeVideoWaiterTest
         (await waiter.WaitAsync(videoId)).ShouldBe(expected);
 
         await downloader.Received(1).GetVideoDetailsAsync(videoId);
-        await signalWaiter.DidNotReceive().WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
+        await signalWaiter.DidNotReceive().WaitAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
     }
 
     public static IEnumerable<WaitAsyncTestCase> WaitAsyncTestCases()
@@ -139,7 +139,7 @@ public class YouTubeVideoWaiterTest
         timeProvider.SetLocalTimeZone(testCase.TimeZone);
 
         using var semaphore = new SemaphoreSlim(0);
-        signalWaiter.When(t => t.WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())).Do(_ => semaphore.Release());
+        signalWaiter.When(t => t.WaitAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())).Do(_ => semaphore.Release());
 
         var task = waiter.WaitAsync(videoId);
 
@@ -147,14 +147,14 @@ public class YouTubeVideoWaiterTest
         {
             (await semaphore.WaitAsync(TimeSpan.FromSeconds(1), this.CancellationToken)).ShouldBeTrue();
 
-            await signalWaiter.Received(++callCounts[waitTime]).WaitForCancelKeyPressAsync(waitTime, Arg.Any<TimeProvider>());
+            await signalWaiter.Received(++callCounts[waitTime]).WaitAsync(waitTime, Arg.Any<TimeProvider>());
             timeProvider.Advance(waitTime);
         }
 
         (await task).ShouldBe(testCase.Expected);
 
         await downloader.Received(videoDetails.Length).GetVideoDetailsAsync(videoId);
-        await signalWaiter.Received(waitTimes.Length).WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
+        await signalWaiter.Received(waitTimes.Length).WaitAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
     }
 
     private static string CreateVideoDetails(string? status, DateTimeOffset? timestamp)
@@ -188,7 +188,7 @@ public class YouTubeVideoWaiterTest
 
     private static YouTubeVideoWaiter CreateWaiter(
         out IVideoDownloader downloader,
-        out IConsoleSignalWaiter signalWaiter,
+        out IRetrySignalWaiter signalWaiter,
         string videoDetails)
     {
         return CreateWaiter(out _, out downloader, out signalWaiter, [videoDetails], TimeSpan.Zero, TimeSpan.Zero);
@@ -197,7 +197,7 @@ public class YouTubeVideoWaiterTest
     private static YouTubeVideoWaiter CreateWaiter(
         out FakeTimeProvider timeProvider,
         out IVideoDownloader downloader,
-        out IConsoleSignalWaiter signalWaiter,
+        out IRetrySignalWaiter signalWaiter,
         IReadOnlyList<string> videoDetails,
         TimeSpan startCheckBuffer,
         TimeSpan startCheckInterval)
@@ -205,8 +205,8 @@ public class YouTubeVideoWaiterTest
         downloader = Substitute.For<IVideoDownloader>();
         downloader.GetVideoDetailsAsync(Arg.Any<string>()).Returns(videoDetails);
 
-        signalWaiter = Substitute.For<IConsoleSignalWaiter>();
-        signalWaiter.WaitForCancelKeyPressAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())
+        signalWaiter = Substitute.For<IRetrySignalWaiter>();
+        signalWaiter.WaitAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>())
             .Returns(x => Task.Delay((TimeSpan)x[0], (TimeProvider)x[1]));
 
         return new YouTubeVideoWaiter(

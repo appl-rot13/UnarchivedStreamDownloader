@@ -10,7 +10,7 @@ public class YouTubeVideoWaiter(
     TimeProvider timeProvider,
     BehaviorSettings behavior,
     IVideoDownloader downloader,
-    IConsoleSignalWaiter signalWaiter) : IVideoWaiter
+    IRetrySignalWaiter signalWaiter) : IVideoWaiter
 {
     public async Task<bool> WaitAsync(string videoId)
     {
@@ -64,7 +64,7 @@ public class YouTubeVideoWaiter(
             }
 
             logger.WriteLine($"Wait until {attemptTime.LocalDateTime} (Time remaining: {timeRemaining}) - Press Ctrl+C to try now.");
-            await signalWaiter.WaitForCancelKeyPressAsync(timeRemaining, timeProvider);
+            await signalWaiter.WaitAsync(timeRemaining, timeProvider);
         }
     }
 

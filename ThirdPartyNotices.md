@@ -24,6 +24,8 @@ distributed under licenses different than this software.
       https://www.nuget.org/packages/Microsoft.Extensions.FileSystemGlobbing/10.0.11
   - **Microsoft.Extensions.Primitives 10.0.11** -  
       https://www.nuget.org/packages/Microsoft.Extensions.Primitives/10.0.11
+  - **Microsoft.Win32.SystemEvents 10.0.11** -  
+      https://www.nuget.org/packages/Microsoft.Win32.SystemEvents/10.0.11
 
 - **License Notice**
   ```

@@ -2,7 +2,9 @@
 
 public interface IAsyncSignal : IDisposable
 {
-    bool IsSet { get; }
+    bool IsTriggered { get; }
+
+    Task WaitAsync(CancellationToken cancellationToken = default);
 
     Task WaitAsync(TimeSpan timeout, TimeProvider timeProvider);
 }
