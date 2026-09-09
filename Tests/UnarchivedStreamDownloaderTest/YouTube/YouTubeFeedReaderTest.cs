@@ -17,9 +17,9 @@ public class YouTubeFeedReaderTest
 
     [TestMethod]
     [DataRow("ChannelID", "https://www.youtube.com/feeds/videos.xml?channel_id=ChannelID")]
-    public void GetFeedUrl_ReturnsUrl(string channelId, string expected)
+    public void GetFeedUrl_ReturnsUrl(string channelId, string url)
     {
-        YouTubeFeedReader.GetFeedUrl(channelId).ShouldBe(expected);
+        YouTubeFeedReader.GetFeedUrl(channelId).ShouldBe(url);
     }
 
     [TestMethod]

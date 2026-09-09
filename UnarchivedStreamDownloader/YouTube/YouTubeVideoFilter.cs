@@ -5,7 +5,7 @@ using UnarchivedStreamDownloader.Core.Utilities.Extensions;
 
 public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource source) : IYouTubeVideoSource
 {
-    private readonly IReadOnlyCollection<string> ignoreVideoIDs = Normalize(settings.IgnoreVideoIDs, true);
+    private readonly IReadOnlyCollection<string> ignoreVideoIds = Normalize(settings.IgnoreVideoIDs, true);
     private readonly IReadOnlyCollection<string> keywords = Normalize(settings.Keywords, false);
 
     public async IAsyncEnumerable<YouTubeVideo> EnumerateVideos(string channelId)
@@ -21,7 +21,7 @@ public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource sou
 
     private bool IsMatch(YouTubeVideo video)
     {
-        if (this.ignoreVideoIDs.Contains(video.Id))
+        if (this.ignoreVideoIds.Contains(video.Id))
         {
             return false;
         }

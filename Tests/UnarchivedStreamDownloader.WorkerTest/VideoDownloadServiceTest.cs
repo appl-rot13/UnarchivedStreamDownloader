@@ -87,22 +87,22 @@ public class VideoDownloadServiceTest
         await downloader.Received(testCase.ExpectedDownloadCount).DownloadAsync(Arg.Any<string>());
     }
 
-    public static IEnumerable<DownloadWithRetryTestCase> DownloadWithRetryTestCases()
+    public static IEnumerable<DownloadWithRetryAsyncTestCase> DownloadWithRetryAsyncTestCases()
     {
         return
         [
-            new DownloadWithRetryTestCase([true              ], 3, 1,  true),
-            new DownloadWithRetryTestCase([false, true       ], 3, 2,  true),
-            new DownloadWithRetryTestCase([false, false, true], 3, 3,  true),
-            new DownloadWithRetryTestCase([false             ], 3, 3, false),
-            new DownloadWithRetryTestCase([false             ], 5, 5, false),
-            new DownloadWithRetryTestCase([true              ], 0, 0, false),
+            new DownloadWithRetryAsyncTestCase([true              ], 3, 1,  true),
+            new DownloadWithRetryAsyncTestCase([false, true       ], 3, 2,  true),
+            new DownloadWithRetryAsyncTestCase([false, false, true], 3, 3,  true),
+            new DownloadWithRetryAsyncTestCase([false             ], 3, 3, false),
+            new DownloadWithRetryAsyncTestCase([false             ], 5, 5, false),
+            new DownloadWithRetryAsyncTestCase([true              ], 0, 0, false),
         ];
     }
 
     [TestMethod]
-    [DynamicData(nameof(DownloadWithRetryTestCases))]
-    public async Task DownloadWithRetryAsync_RetriesUntilDownloadSucceeds(DownloadWithRetryTestCase testCase)
+    [DynamicData(nameof(DownloadWithRetryAsyncTestCases))]
+    public async Task DownloadWithRetryAsync_RetriesUntilDownloadSucceeds(DownloadWithRetryAsyncTestCase testCase)
     {
         var videoId = "VideoID";
         var service = CreateService(out var timeProvider, out var downloader, testCase.RetryAttempts, 3);
@@ -202,7 +202,7 @@ public class VideoDownloadServiceTest
         }
     }
 
-    public record DownloadWithRetryTestCase(
+    public record DownloadWithRetryAsyncTestCase(
         ImmutableArray<bool> DownloadResults,
         int RetryAttempts,
         int ExpectedDownloadCount,

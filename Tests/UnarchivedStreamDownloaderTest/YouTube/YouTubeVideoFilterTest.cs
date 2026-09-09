@@ -38,7 +38,7 @@ public class YouTubeVideoFilterTest
     }
 
     [TestMethod]
-    public async Task EnumerateVideos_VideoIdToIgnored_SkipsVideo()
+    public async Task EnumerateVideos_VideoIdToIgnore_SkipsVideo()
     {
         var (channel, videos) = CreateYouTubeData();
         var filter = CreateFilter(videos, ["Video"], ["VideoID-2"]);
@@ -95,8 +95,8 @@ public class YouTubeVideoFilterTest
     public async Task EnumerateVideos_PassesArguments(string channelId)
     {
         var filter = CreateFilter(out var reader, [], []);
-        await filter.EnumerateVideos(channelId).ToListAsync(this.CancellationToken);
 
+        await filter.EnumerateVideos(channelId).ToListAsync(this.CancellationToken);
         reader.Received(1).EnumerateVideos(channelId);
     }
 

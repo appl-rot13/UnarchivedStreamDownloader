@@ -38,13 +38,13 @@ public class YouTubeVideoWaiterTest
     [TestMethod]
     [DataRow(null, null, false)]
     [DataRow("is_live", null, true)]
-    public async Task WaitAsync_EarlyReturnsResult(string? status, DateTimeOffset? timestamp, bool expected)
+    public async Task WaitAsync_EarlyReturnsResult(string? status, DateTimeOffset? timestamp, bool result)
     {
         var videoId = "VideoID";
         var videoDetails = CreateVideoDetails(status, timestamp);
         var waiter = CreateWaiter(out var downloader, out var signalWaiter, videoDetails);
 
-        (await waiter.WaitAsync(videoId)).ShouldBe(expected);
+        (await waiter.WaitAsync(videoId)).ShouldBe(result);
 
         await downloader.Received(1).GetVideoDetailsAsync(videoId);
         await signalWaiter.DidNotReceive().WaitAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
@@ -151,7 +151,7 @@ public class YouTubeVideoWaiterTest
             timeProvider.Advance(waitTime);
         }
 
-        (await task).ShouldBe(testCase.Expected);
+        (await task).ShouldBe(testCase.ExpectedResult);
 
         await downloader.Received(videoDetails.Length).GetVideoDetailsAsync(videoId);
         await signalWaiter.Received(waitTimes.Length).WaitAsync(Arg.Any<TimeSpan>(), Arg.Any<TimeProvider>());
@@ -222,7 +222,7 @@ public class YouTubeVideoWaiterTest
         TimeZoneInfo TimeZone,
         TimeSpan StartCheckBuffer,
         ImmutableArray<(string VideoDetails, TimeSpan? WaitTime)> Steps,
-        bool Expected)
+        bool ExpectedResult)
     {
         protected virtual bool PrintMembers(StringBuilder builder)
         {
@@ -234,7 +234,7 @@ public class YouTubeVideoWaiterTest
             builder.Append(", ");
             builder.Append($"\n{nameof(Steps)} = [\n\t{string.Join(",\n\t", Steps)}\n]");
             builder.Append(", ");
-            builder.Append($"\n{nameof(Expected)} = {Expected}");
+            builder.Append($"\n{nameof(ExpectedResult)} = {ExpectedResult}");
 
             return true;
         }
