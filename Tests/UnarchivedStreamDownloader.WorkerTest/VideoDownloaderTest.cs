@@ -1,7 +1,5 @@
 namespace UnarchivedStreamDownloader.WorkerTest;
 
-using System.Collections.Immutable;
-using System.Text;
 using NSubstitute;
 using Shouldly;
 using UnarchivedStreamDownloader.Core.Infrastructure;
@@ -10,27 +8,19 @@ using UnarchivedStreamDownloader.Worker;
 [TestClass]
 public class VideoDownloaderTest
 {
-    public static IEnumerable<ArchiveFileExistsTestCase> ArchiveFileExistsTestCases()
-    {
-        return
-        [
-            new ArchiveFileExistsTestCase("Video-ID", [], false),
-            new ArchiveFileExistsTestCase("Video-ID", ["Title [Video-ID].mkv"], true),
-            new ArchiveFileExistsTestCase("Video-ID", ["Title 2026-08-25 12_00 [Video-ID].mkv"], false),
-            new ArchiveFileExistsTestCase("Video-ID", ["Title [Video-ID].mkv", "Title 2026-08-25 12_00 [Video-ID].mkv"], true),
-            new ArchiveFileExistsTestCase("Video.ID", ["Title [Video.ID].mkv"], true),
-        ];
-    }
-
     [TestMethod]
-    [DynamicData(nameof(ArchiveFileExistsTestCases))]
-    public void ArchiveFileExists_ReturnsResult(ArchiveFileExistsTestCase testCase)
+    [DataRow("Video-ID", new string[] {                                                                 }, false)]
+    [DataRow("Video-ID", new string[] { "Title [Video-ID].mkv"                                          },  true)]
+    [DataRow("Video-ID", new string[] { "Title 2026-08-25 12_00 [Video-ID].mkv"                         }, false)]
+    [DataRow("Video-ID", new string[] { "Title [Video-ID].mkv", "Title 2026-08-25 12_00 [Video-ID].mkv" },  true)]
+    [DataRow("Video.ID", new string[] { "Title [Video.ID].mkv"                                          },  true)]
+    public void ArchiveFileExists_ReturnsResult(string videoId, IEnumerable<string> fileNames, bool expectedResult)
     {
         var basePath = Path.GetTempPath();
-        var files = testCase.FileNames.Select(fileName => Path.Combine(basePath, fileName));
+        var files = fileNames.Select(fileName => Path.Combine(basePath, fileName));
         var downloader = CreateDownloader(files);
 
-        downloader.ArchiveFileExists(testCase.VideoId).ShouldBe(testCase.ExpectedResult);
+        downloader.ArchiveFileExists(videoId).ShouldBe(expectedResult);
     }
 
     [TestMethod]
@@ -56,12 +46,12 @@ public class VideoDownloaderTest
     }
 
     [TestMethod]
-    [DataRow(false, @"-- Video-ID")]
-    [DataRow( true, @"-- Video-ID")]
-    [DataRow(false, @"--verbose -- Video-ID", "--verbose")]
-    [DataRow( true, @"--verbose -- Video-ID", "--verbose", "--wait-for-video 30")]
-    [DataRow(false, @"--verbose --cookies ""cookies.txt"" -- Video-ID", "--verbose", "--wait-for-video 30", @"--cookies ""cookies.txt""")]
-    public async Task DownloadAsync_ReturnsResult(bool result, string arguments, params string[] options)
+    [DataRow(new string[] {                                                                  }, @"-- Video-ID",                                     false)]
+    [DataRow(new string[] {                                                                  }, @"-- Video-ID",                                      true)]
+    [DataRow(new string[] { "--verbose"                                                      }, @"--verbose -- Video-ID",                           false)]
+    [DataRow(new string[] { "--verbose", "--wait-for-video 30"                               }, @"--verbose -- Video-ID",                            true)]
+    [DataRow(new string[] { "--verbose", "--wait-for-video 30", @"--cookies ""cookies.txt""" }, @"--verbose --cookies ""cookies.txt"" -- Video-ID", false)]
+    public async Task DownloadAsync_ReturnsResult(IReadOnlyCollection<string> options, string arguments, bool result)
     {
         var videoId = "Video-ID";
         var downloader = CreateDownloader(out var processRunner, false, result, string.Empty, options);
@@ -107,19 +97,5 @@ public class VideoDownloaderTest
             processRunner,
             () => signal,
             options);
-    }
-
-    public record ArchiveFileExistsTestCase(string VideoId, ImmutableArray<string> FileNames, bool ExpectedResult)
-    {
-        protected virtual bool PrintMembers(StringBuilder builder)
-        {
-            builder.Append($"{nameof(VideoId)} = {VideoId}");
-            builder.Append(", ");
-            builder.Append($"{nameof(FileNames)} = [{string.Join(", ", FileNames)}]");
-            builder.Append(", ");
-            builder.Append($"{nameof(ExpectedResult)} = {ExpectedResult}");
-
-            return true;
-        }
     }
 }

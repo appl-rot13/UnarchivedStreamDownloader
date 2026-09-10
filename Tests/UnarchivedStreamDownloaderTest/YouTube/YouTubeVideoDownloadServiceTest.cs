@@ -1,7 +1,5 @@
 ﻿namespace UnarchivedStreamDownloaderTest.YouTube;
 
-using System.Collections.Immutable;
-using System.Text;
 using NSubstitute;
 using Shouldly;
 using UnarchivedStreamDownloader.YouTube;
@@ -9,17 +7,17 @@ using UnarchivedStreamDownloader.YouTube;
 [TestClass]
 public class YouTubeVideoDownloadServiceTest
 {
-    public static IEnumerable<DownloadAllAsyncTestCase> DownloadAllAsyncTestCases()
+    public static IEnumerable<(bool?[], bool[])> DownloadAllAsyncTestCases()
     {
         return
         [
-            new DownloadAllAsyncTestCase([ true,  true,  true], [ true,  true,  true]),
-            new DownloadAllAsyncTestCase([ true, false,  true], [ true, false,  true]),
-            new DownloadAllAsyncTestCase([false, false, false], [false, false, false]),
-            new DownloadAllAsyncTestCase([ true,  null,  true], [ true,  true]),
-            new DownloadAllAsyncTestCase([false,  null, false], [false, false]),
-            new DownloadAllAsyncTestCase([ true,  null, false], [ true, false]),
-            new DownloadAllAsyncTestCase([ null,  null,  null], []),
+            ([ true,  true,  true], [ true,  true,  true]),
+            ([ true, false,  true], [ true, false,  true]),
+            ([false, false, false], [false, false, false]),
+            ([ true,  null,  true], [ true,  true]),
+            ([false,  null, false], [false, false]),
+            ([ true,  null, false], [ true, false]),
+            ([ null,  null,  null], []),
         ];
     }
 
@@ -39,13 +37,13 @@ public class YouTubeVideoDownloadServiceTest
 
     [TestMethod]
     [DynamicData(nameof(DownloadAllAsyncTestCases))]
-    public async Task DownloadAllAsync_ReturnsResults(DownloadAllAsyncTestCase testCase)
+    public async Task DownloadAllAsync_ReturnsResults(IEnumerable<bool?> downloadResults, IEnumerable<bool> expectedResults)
     {
         var videos = CreateYouTubeVideos();
         var channelIds = videos.Select(video => video.Channel.Id);
-        var service = CreateService(videos.Zip(testCase.DownloadResults));
+        var service = CreateService(videos.Zip(downloadResults));
 
-        (await service.DownloadAllAsync(channelIds)).ShouldBe(testCase.ExpectedResults, ignoreOrder: true);
+        (await service.DownloadAllAsync(channelIds)).ShouldBe(expectedResults, ignoreOrder: true);
     }
 
     [TestMethod]
@@ -106,17 +104,5 @@ public class YouTubeVideoDownloadServiceTest
         }
 
         return new YouTubeVideoDownloadService(source, downloader);
-    }
-
-    public record DownloadAllAsyncTestCase(ImmutableArray<bool?> DownloadResults, ImmutableArray<bool> ExpectedResults)
-    {
-        protected virtual bool PrintMembers(StringBuilder builder)
-        {
-            builder.Append($"{nameof(DownloadResults)} = [{string.Join(", ", DownloadResults.Select(b => b?.ToString() ?? "null"))}]");
-            builder.Append(", ");
-            builder.Append($"{nameof(ExpectedResults)} = [{string.Join(", ", ExpectedResults)}]");
-
-            return true;
-        }
     }
 }

@@ -1,7 +1,5 @@
 namespace UnarchivedStreamDownloader.WorkerTest;
 
-using System.Collections.Immutable;
-using System.Text;
 using Microsoft.Extensions.Time.Testing;
 using NSubstitute;
 using Shouldly;
@@ -60,60 +58,52 @@ public class VideoDownloadServiceTest
         await downloader.Received(1).DownloadAsync(Arg.Any<string>());
     }
 
-    public static IEnumerable<DownloadArchiveAsyncTestCase> DownloadArchiveAsyncTestCases()
-    {
-        return
-        [
-            new DownloadArchiveAsyncTestCase([false, true              ], 3, 1,  true),
-            new DownloadArchiveAsyncTestCase([false, false, true       ], 3, 2,  true),
-            new DownloadArchiveAsyncTestCase([false, false, false, true], 3, 3,  true),
-            new DownloadArchiveAsyncTestCase([false                    ], 3, 3, false),
-            new DownloadArchiveAsyncTestCase([false                    ], 5, 5, false),
-        ];
-    }
-
     [TestMethod]
-    [DynamicData(nameof(DownloadArchiveAsyncTestCases))]
-    public async Task DownloadArchiveAsync_RetriesUntilArchiveFileExists(DownloadArchiveAsyncTestCase testCase)
+    [DataRow(new bool[] { false, true               }, 3, 1,  true)]
+    [DataRow(new bool[] { false, false, true        }, 3, 2,  true)]
+    [DataRow(new bool[] { false, false, false, true }, 3, 3,  true)]
+    [DataRow(new bool[] { false                     }, 3, 3, false)]
+    [DataRow(new bool[] { false                     }, 5, 5, false)]
+    public async Task DownloadArchiveAsync_RetriesUntilArchiveFileExists(
+        IReadOnlyList<bool> archiveFileExistsResults,
+        int downloadAttempts,
+        int expectedDownloadCount,
+        bool expectedResult)
     {
         var videoId = "VideoID";
-        var service = CreateService(out var videoWaiter, out var downloader, testCase.DownloadAttempts);
-        downloader.ArchiveFileExists(Arg.Any<string>()).Returns(testCase.ArchiveFileExistsResults);
+        var service = CreateService(out var videoWaiter, out var downloader, downloadAttempts);
+        downloader.ArchiveFileExists(Arg.Any<string>()).Returns(archiveFileExistsResults);
 
-        (await service.DownloadArchiveAsync(videoId)).ShouldBe(testCase.ExpectedResult);
+        (await service.DownloadArchiveAsync(videoId)).ShouldBe(expectedResult);
 
-        downloader.Received(testCase.ExpectedDownloadCount + 1).ArchiveFileExists(videoId);
+        downloader.Received(expectedDownloadCount + 1).ArchiveFileExists(videoId);
         await videoWaiter.Received(1).WaitAsync(videoId);
-        await downloader.Received(testCase.ExpectedDownloadCount).DownloadAsync(Arg.Any<string>());
-    }
-
-    public static IEnumerable<DownloadWithRetryAsyncTestCase> DownloadWithRetryAsyncTestCases()
-    {
-        return
-        [
-            new DownloadWithRetryAsyncTestCase([true              ], 3, 1,  true),
-            new DownloadWithRetryAsyncTestCase([false, true       ], 3, 2,  true),
-            new DownloadWithRetryAsyncTestCase([false, false, true], 3, 3,  true),
-            new DownloadWithRetryAsyncTestCase([false             ], 3, 3, false),
-            new DownloadWithRetryAsyncTestCase([false             ], 5, 5, false),
-            new DownloadWithRetryAsyncTestCase([true              ], 0, 0, false),
-        ];
+        await downloader.Received(expectedDownloadCount).DownloadAsync(Arg.Any<string>());
     }
 
     [TestMethod]
-    [DynamicData(nameof(DownloadWithRetryAsyncTestCases))]
-    public async Task DownloadWithRetryAsync_RetriesUntilDownloadSucceeds(DownloadWithRetryAsyncTestCase testCase)
+    [DataRow(new bool[] { true               }, 3, 1,  true)]
+    [DataRow(new bool[] { false, true        }, 3, 2,  true)]
+    [DataRow(new bool[] { false, false, true }, 3, 3,  true)]
+    [DataRow(new bool[] { false              }, 3, 3, false)]
+    [DataRow(new bool[] { false              }, 5, 5, false)]
+    [DataRow(new bool[] { true               }, 0, 0, false)]
+    public async Task DownloadWithRetryAsync_RetriesUntilDownloadSucceeds(
+        IReadOnlyList<bool> downloadResults,
+        int retryAttempts,
+        int expectedDownloadCount,
+        bool expectedResult)
     {
         var videoId = "VideoID";
-        var service = CreateService(out var timeProvider, out var downloader, testCase.RetryAttempts, 3);
+        var service = CreateService(out var timeProvider, out var downloader, retryAttempts, 3);
 
         using var semaphore = new SemaphoreSlim(0);
-        downloader.DownloadAsync(Arg.Any<string>()).Returns(testCase.DownloadResults);
+        downloader.DownloadAsync(Arg.Any<string>()).Returns(downloadResults);
         downloader.When(t => t.DownloadAsync(Arg.Any<string>())).Do(_ => semaphore.Release());
 
         var task = service.DownloadWithRetryAsync(videoId);
 
-        for (var i = 1; i < testCase.ExpectedDownloadCount; i++)
+        for (var i = 1; i < expectedDownloadCount; i++)
         {
             (await semaphore.WaitAsync(TimeSpan.FromSeconds(1), this.CancellationToken)).ShouldBeTrue();
 
@@ -123,8 +113,8 @@ public class VideoDownloadServiceTest
             timeProvider.Advance(TimeSpan.FromSeconds(1));
         }
 
-        (await task).ShouldBe(testCase.ExpectedResult);
-        await downloader.Received(testCase.ExpectedDownloadCount).DownloadAsync(videoId);
+        (await task).ShouldBe(expectedResult);
+        await downloader.Received(expectedDownloadCount).DownloadAsync(videoId);
     }
 
     private static BehaviorSettings CreateSettings(
@@ -180,45 +170,5 @@ public class VideoDownloadServiceTest
             CreateSettings(downloadAttempts, 1, 0),
             downloader,
             videoWaiter);
-    }
-
-    public record DownloadArchiveAsyncTestCase(
-        ImmutableArray<bool> ArchiveFileExistsResults,
-        int DownloadAttempts,
-        int ExpectedDownloadCount,
-        bool ExpectedResult)
-    {
-        protected virtual bool PrintMembers(StringBuilder builder)
-        {
-            builder.Append($"{nameof(ArchiveFileExistsResults)} = [{string.Join(", ", ArchiveFileExistsResults)}]");
-            builder.Append(", ");
-            builder.Append($"{nameof(DownloadAttempts)} = {DownloadAttempts}");
-            builder.Append(", ");
-            builder.Append($"{nameof(ExpectedDownloadCount)} = {ExpectedDownloadCount}");
-            builder.Append(", ");
-            builder.Append($"{nameof(ExpectedResult)} = {ExpectedResult}");
-
-            return true;
-        }
-    }
-
-    public record DownloadWithRetryAsyncTestCase(
-        ImmutableArray<bool> DownloadResults,
-        int RetryAttempts,
-        int ExpectedDownloadCount,
-        bool ExpectedResult)
-    {
-        protected virtual bool PrintMembers(StringBuilder builder)
-        {
-            builder.Append($"{nameof(DownloadResults)} = [{string.Join(", ", DownloadResults)}]");
-            builder.Append(", ");
-            builder.Append($"{nameof(RetryAttempts)} = {RetryAttempts}");
-            builder.Append(", ");
-            builder.Append($"{nameof(ExpectedDownloadCount)} = {ExpectedDownloadCount}");
-            builder.Append(", ");
-            builder.Append($"{nameof(ExpectedResult)} = {ExpectedResult}");
-
-            return true;
-        }
     }
 }
