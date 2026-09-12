@@ -3,29 +3,29 @@
 This software uses third-party libraries or other resources that may be
 distributed under licenses different than this software.
 
-## .NET 10.0.11
+## .NET 10.0.12
 - **Source** - https://github.com/dotnet/dotnet
 - **Packages**
-  - **Microsoft.Extensions.Configuration 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.Configuration/10.0.11
-  - **Microsoft.Extensions.Configuration.Abstractions 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Abstractions/10.0.11
-  - **Microsoft.Extensions.Configuration.Binder 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Binder/10.0.11
-  - **Microsoft.Extensions.Configuration.FileExtensions 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.FileExtensions/10.0.11
-  - **Microsoft.Extensions.Configuration.Json 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Json/10.0.11
-  - **Microsoft.Extensions.FileProviders.Abstractions 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.FileProviders.Abstractions/10.0.11
-  - **Microsoft.Extensions.FileProviders.Physical 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.FileProviders.Physical/10.0.11
-  - **Microsoft.Extensions.FileSystemGlobbing 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.FileSystemGlobbing/10.0.11
-  - **Microsoft.Extensions.Primitives 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Extensions.Primitives/10.0.11
-  - **Microsoft.Win32.SystemEvents 10.0.11** -  
-      https://www.nuget.org/packages/Microsoft.Win32.SystemEvents/10.0.11
+  - **Microsoft.Extensions.Configuration 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.Configuration/10.0.12
+  - **Microsoft.Extensions.Configuration.Abstractions 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Abstractions/10.0.12
+  - **Microsoft.Extensions.Configuration.Binder 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Binder/10.0.12
+  - **Microsoft.Extensions.Configuration.FileExtensions 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.FileExtensions/10.0.12
+  - **Microsoft.Extensions.Configuration.Json 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.Configuration.Json/10.0.12
+  - **Microsoft.Extensions.FileProviders.Abstractions 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.FileProviders.Abstractions/10.0.12
+  - **Microsoft.Extensions.FileProviders.Physical 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.FileProviders.Physical/10.0.12
+  - **Microsoft.Extensions.FileSystemGlobbing 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.FileSystemGlobbing/10.0.12
+  - **Microsoft.Extensions.Primitives 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Extensions.Primitives/10.0.12
+  - **Microsoft.Win32.SystemEvents 10.0.12** -  
+      https://www.nuget.org/packages/Microsoft.Win32.SystemEvents/10.0.12
 
 - **License Notice**
   ```
