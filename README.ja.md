@@ -2,6 +2,8 @@
 
 # Unarchived Stream Downloader
 
+[![Test](../../actions/workflows/test.yml/badge.svg)](../../actions/workflows/test.yml)
+
 YouTube 生配信をダウンロードするツール。
 
 > [!WARNING]
