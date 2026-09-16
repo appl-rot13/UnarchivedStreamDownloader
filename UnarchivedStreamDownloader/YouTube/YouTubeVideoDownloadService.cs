@@ -16,7 +16,7 @@ public class YouTubeVideoDownloadService(IYouTubeVideoSource source, IYouTubeVid
         var downloadTasks = new ConcurrentBag<Task<bool?>>();
 
         await channelIds
-            .ExcludeEmptyOrWhitespace()
+            .ExcludeNullOrWhiteSpace()
             .Select(id => id.Trim())
             .Distinct()
             .Select(async channelId =>

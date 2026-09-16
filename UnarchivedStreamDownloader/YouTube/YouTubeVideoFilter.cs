@@ -32,7 +32,7 @@ public class YouTubeVideoFilter(SearchSettings settings, IYouTubeVideoSource sou
 
     private static IReadOnlyCollection<string> Normalize(IEnumerable<string> values, bool trim)
     {
-        values = values.ExcludeEmptyOrWhitespace();
+        values = values.ExcludeNullOrWhiteSpace();
         if (trim)
         {
             values = values.Select(value => value.Trim());

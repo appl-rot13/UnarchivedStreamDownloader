@@ -10,7 +10,7 @@ public static class StringExtensions
         return keywords.Any(keyword => text.Contains(keyword, comparisonType));
     }
 
-    public static IEnumerable<string> ExcludeEmptyOrWhitespace(this IEnumerable<string> source)
+    public static IEnumerable<string> ExcludeNullOrWhiteSpace(this IEnumerable<string> source)
     {
         return source.Where(value => !string.IsNullOrWhiteSpace(value));
     }
