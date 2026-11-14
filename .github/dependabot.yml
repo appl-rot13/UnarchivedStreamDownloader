@@ -20,3 +20,10 @@ updates:
         patterns:
           - "Microsoft.Extensions.Configuration.*"
           - "Microsoft.Win32.*"
+    ignore:
+      - dependency-name: "Microsoft.Extensions.Configuration.*"
+        update-types:
+          - version-update:semver-major
+      - dependency-name: "Microsoft.Win32.*"
+        update-types:
+          - version-update:semver-major
